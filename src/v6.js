@@ -49,7 +49,7 @@ const css=`
 .lw_item img{max-width:62%;max-height:46%;object-fit:contain;filter:grayscale(1);opacity:.8}
 .lw_name{font-family:var(--_typography---font--primary);font-size:clamp(1.05rem,1.5vw,1.35rem);font-weight:300;line-height:1.1;color:var(--_base-color---brand--tinta,#2a1a13)}
 .lw_kind{position:absolute;left:.9rem;top:.8rem;font-size:.625rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--_base-color---support--muted,#8a766b)}
-@media (max-width:991px){.lw{--lw-cols:3}}@media (max-width:479px){.lw{--lw-cols:2}}
+@media (max-width:991px){.lw{--lw-cols:3}}[data-reviews]{overflow:hidden}[data-rv-list] .w-dyn-items{display:flex;gap:1.5rem;width:max-content;will-change:transform}[data-rv-item]{width:min(27rem,82vw);flex:none;display:flex;flex-direction:column;gap:1.25rem;padding:2rem 0 0;border-top:1px solid rgba(106,68,49,.22);position:relative}[data-rv-item]::before{content:"";position:absolute;left:0;top:-1px;height:1px;width:100%;background:var(--_base-color---brand--tinta,#2a1a13);transform:scaleX(var(--rv,0));transform-origin:left}[data-rv-text]{order:0;font-family:var(--_typography---font--primary);font-weight:300;font-size:clamp(1.35rem,1.9vw,1.75rem);line-height:1.2;color:var(--_base-color---brand--tinta,#2a1a13);text-wrap:pretty}[data-rv-text]::before{content:"“";display:block;font-size:3.2em;line-height:.6;height:.42em;color:var(--_base-color---brand--coral,#ea6f4e)}[data-rv-name]{margin-top:auto;font-size:.875rem;font-weight:600;color:var(--_base-color---brand--tinta,#2a1a13)}[data-rv-esp],[data-rv-src]{font-size:.8125rem;color:var(--_base-color---support--muted,#8a766b);margin-top:-1rem}[data-rv-src]:not(:empty)::before{content:"via "}@media (max-width:767px){[data-rv-list]{overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -1.25rem;padding:0 1.25rem;scrollbar-width:none}[data-rv-list]::-webkit-scrollbar{display:none}[data-rv-item]{scroll-snap-align:start}}[data-cslider]{position:relative;height:clamp(22rem,58vh,40rem);overflow:hidden;display:block!important;cursor:auto}[data-cslider] [data-cs-slide]{position:absolute!important;left:0;top:0;height:100%;margin:0;will-change:transform,clip-path;clip-path:inset(0 calc(var(--clip,0)*1px) round 18px);cursor:pointer;-webkit-user-select:none;user-select:none}[data-cslider] [data-cs-slide][data-status=active]{cursor:default}[data-cslider] .gal_frame{position:absolute!important;inset:0;width:auto!important;height:auto!important;aspect-ratio:auto!important;border-radius:0!important;overflow:hidden}[data-cslider] .gal_img,[data-cslider] .gal_frame img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;transform:scale(1.08);transition:transform 1.2s cubic-bezier(.16,1,.3,1)}[data-cslider] [data-status=active] .gal_frame img{transform:scale(1)}[data-cslider] .gal_cap{position:absolute!important;left:0;right:0;bottom:0;z-index:2;margin:0!important;padding:4rem 1.75rem 1.5rem;background:linear-gradient(0deg,rgba(42,26,19,.55),transparent);color:#fff;font-family:var(--_typography---font--primary);font-size:clamp(1.3rem,2vw,1.9rem);font-weight:300;line-height:1.05;opacity:0;transform:translateY(.4em);transition:opacity .3s,transform .3s cubic-bezier(.645,.045,.355,1)}[data-cslider] [data-status=active] .gal_cap{opacity:1;transform:none;transition-delay:.35s}.cs_nav{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:1.5rem}.cs_count{font-variant-numeric:tabular-nums;font-size:.8125rem;font-weight:600;letter-spacing:.08em;color:var(--_base-color---brand--tinta,#2a1a13)}.cs_line{flex:1;height:1px;background:rgba(106,68,49,.14);position:relative;overflow:hidden}.cs_line i{position:absolute;inset:0;background:var(--_base-color---brand--tinta,#2a1a13);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .65s cubic-bezier(.65,0,.35,1)}.cs_btns{display:flex;gap:.5rem}.cs_btn{appearance:none;border:0;width:2.75rem;height:2.75rem;border-radius:50%;display:grid;place-items:center;background:transparent;box-shadow:inset 0 0 0 1px rgba(106,68,49,.14);color:var(--_base-color---brand--tinta,#2a1a13);cursor:pointer;transition:background-color .3s,color .3s}.cs_btn:hover{background:var(--_base-color---brand--tinta,#2a1a13);color:#fff}.cs_btn svg{width:18px;height:18px}.cs_btn.is-prev svg{transform:rotate(180deg)}.gal_progress:has(+ .cs_nav),.cs_hide{display:none!important}@media (max-width:479px){.lw{--lw-cols:2}}
 `;
 const st=document.createElement("style");st.id="cmd-v6";st.textContent=css;document.head.appendChild(st);
 
@@ -113,7 +113,7 @@ if(holder){const grid=$(".team_grid",holder),fl=$("[data-filter=team]")||holder.
 $$("[data-logo-wall]").forEach(root=>{const src=$$("[data-lw-item]",root);if(!src.length)return;
   const data=src.map(n=>({name:($("[data-lw-name]",n)||n).textContent.trim(),kind:($("[data-lw-kind]",n)||{}).textContent||"",img:(($("img",n)||{}).getAttribute&&$("img",n).getAttribute("src"))||""})).filter(d=>d.name);
   const list=$("[data-lw-list]",root)||src[0].parentElement;list.hidden=true;
-  const w=document.createElement("div");w.className="lw";root.appendChild(w);
+  const w=document.createElement("div");w.className="lw";list.after(w);
   const cols=()=>innerWidth<480?2:innerWidth<992?3:4;
   const item=d=>{const e=document.createElement("div");e.className="lw_item";e.innerHTML=(d.kind?`<span class="lw_kind">${d.kind}</span>`:"")+(d.img&&!/placeholder/i.test(d.img)?`<img src="${d.img}" alt="${d.name}" loading="lazy">`:`<span class="lw_name">${d.name}</span>`);return e};
   let cells=[],pool=[],tl;
@@ -126,4 +126,43 @@ $$("[data-logo-wall]").forEach(root=>{const src=$$("[data-lw-item]",root);if(!sr
   build();let lc=cols();addEventListener("resize",()=>{cols()!==lc&&(lc=cols(),build())});
   if(window.ScrollTrigger&&A)ScrollTrigger.create({trigger:root,start:"top bottom",end:"bottom top",onToggle:s=>tl&&(s.isActive?tl.play():tl.pause())});
   document.addEventListener("visibilitychange",()=>tl&&(document.hidden?tl.pause():tl.play()))});
+/* ---------- Galeria em cascata: o slide ativo abre ao centro, os vizinhos ficam em tiras.
+   No desktop avança com o scroll (secção fixa); no telemóvel com o dedo ou as setas. ---------- */
+$$("[data-cslider]").forEach(vp=>{const slides=$$("[data-cs-slide]",vp);const n=slides.length;if(n<2||!G)return;
+  const BP=[[479,.8,.07],[767,.72,.09],[991,.62,.1],[1e9,.56,.12]],GAP=8;let act=0,W=0,cen={},wid={};
+  const meas=()=>{const vw=vp.offsetWidth,b=BP.find(x=>innerWidth<=x[0]),aw=vw*b[1],sw=vw*b[2],fw=Math.max(0,(vw-aw-2*sw-4*GAP)/2);W=aw;
+    const sl=[[-2,fw],[-1,sw],[0,aw],[1,sw],[2,fw]];let x=0;sl.forEach(([k,w],i)=>{cen[k]=x+w/2;wid[k]=w;x+=w+GAP});
+    cen[-3]=cen[-2]-fw-GAP;wid[-3]=fw;cen[3]=cen[2]+fw+GAP;wid[3]=fw;slides.forEach(s=>s.style.width=W+"px")};
+  const props=o=>{const c=Math.max(-3,Math.min(3,o));return{x:cen[c]-W/2,"--clip":Math.max(0,(W-wid[c])/2),zIndex:10-Math.abs(c)}};
+  const nav=document.createElement("div");nav.className="cs_nav";
+  const arr='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  nav.innerHTML=`<span class="cs_count" aria-live="polite"></span><span class="cs_line"><i></i></span><span class="cs_btns"><button type="button" class="cs_btn is-prev" aria-label="Fotografia anterior">${arr}</button><button type="button" class="cs_btn" aria-label="Fotografia seguinte">${arr}</button></span>`;
+  vp.after(nav);const cnt=$(".cs_count",nav),ln=$(".cs_line",nav);$$("[data-drag-progress]").forEach(p=>p.parentElement.classList.add("cs_hide"));
+  vp.setAttribute("aria-roledescription","carousel");slides.forEach((s,i)=>{s.setAttribute("aria-roledescription","slide");s.setAttribute("aria-label",`${i+1} de ${n}`)});
+  const off=i=>{let d=i-act;const h=n/2;d>h&&(d-=n);d<-h&&(d+=n);return d},prev=slides.map(()=>null);
+  const lay=anim=>{slides.forEach((s,i)=>{const o=off(i),p=props(o);if(A&&anim&&prev[i]!==null&&Math.abs(o-prev[i])>2)gsap.set(s,props(o>0?3:-3));prev[i]=o;s.dataset.status=o===0?"active":"inactive";s.setAttribute("aria-hidden",String(o!==0));
+      A&&anim?gsap.to(s,{...p,duration:.75,ease:"power3.inOut",overwrite:true}):gsap.set(s,p)});
+    cnt.textContent=String(act+1).padStart(2,"0")+" / "+String(n).padStart(2,"0");ln.style.setProperty("--p",(act+1)/n)};
+  let st=null;
+  const go=(i,fromScroll)=>{i=Math.max(0,Math.min(n-1,i));if(i===act)return;act=i;snd("tick",{p:1+i*.04});lay(true);
+    if(!fromScroll&&st){const y=st.start+(st.end-st.start)*(i/(n-1));window.cmdLenis?cmdLenis.scrollTo(y,{duration:1}):scrollTo({top:y,behavior:"smooth"})}};
+  meas();lay(false);
+  $(".is-prev",nav).addEventListener("click",()=>go(act-1));$(".cs_btn:not(.is-prev)",nav).addEventListener("click",()=>go(act+1));
+  slides.forEach((s,i)=>s.addEventListener("click",()=>go(i)));
+  addEventListener("keydown",e=>{const r=vp.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;e.key==="ArrowRight"&&go(act+1);e.key==="ArrowLeft"&&go(act-1)});
+  let sx=null;vp.addEventListener("pointerdown",e=>{sx=e.clientX},{passive:true});addEventListener("pointerup",e=>{if(sx===null)return;const d=e.clientX-sx;sx=null;Math.abs(d)>40&&go(act+(d<0?1:-1))},{passive:true});
+  let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{meas();lay(false)},120)});
+  /* desktop: a secção fica fixa e cada porção de scroll muda de fotografia */
+  if(A&&window.ScrollTrigger&&innerWidth>991){const sec=vp.closest("section")||vp.parentElement;
+    st=ScrollTrigger.create({trigger:sec,start:"center center",end:()=>"+="+(n-1)*innerHeight*.5,pin:true,anticipatePin:1,
+      onUpdate:s=>go(Math.round(s.progress*(n-1)),true)})}});
+
+/* ---------- Avaliações: a fila desliza com o scroll e a linha de cada cartão desenha-se ao entrar ---------- */
+$$("[data-reviews]").forEach(sec=>{const row=$("[data-rv-list] .w-dyn-items",sec);if(!row)return;const items=$$("[data-rv-item]",sec);
+  if(!A||!window.ScrollTrigger)return items.forEach(i=>i.style.setProperty("--rv",1));
+  gsap.to(items,{"--rv":1,duration:1.4,stagger:.12,ease:"expo.inOut",scrollTrigger:{trigger:sec,start:"top 70%",once:true}});
+  const mm=gsap.matchMedia();mm.add("(min-width: 768px)",()=>{const dist=()=>Math.max(0,row.scrollWidth-row.parentElement.clientWidth);
+    const tw=gsap.fromTo(row,{x:()=>Math.min(innerWidth*.12,dist())},{x:()=>-dist(),ease:"none",scrollTrigger:{trigger:sec,start:"top bottom",end:"bottom top",scrub:.6,invalidateOnRefresh:true}});
+    return()=>tw.scrollTrigger&&tw.scrollTrigger.kill()})});
+
 })();
