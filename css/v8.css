@@ -137,3 +137,12 @@
 .cal_head{margin-bottom:.6rem}.cal_week{margin-bottom:.25rem}.cal_legend{margin-top:.6rem}
 .book_panel{gap:1rem}
 .choice span{min-height:3.2rem}
+/* team arc mobile */
+.team-arc_item .team-card_meta{transition:opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1)}
+.team-arc_item .team-card_photo{transition:opacity .45s cubic-bezier(.16,1,.3,1)}
+@media (max-width:767px){
+.team-arc_item:not(.is-active) .team-card_meta{opacity:0!important;transform:translateY(.5rem)!important}
+.team-arc_item:not(.is-active) .team-card_photo{opacity:.55!important}
+.team-arc_item .team-card_name{font-size:1.5rem;line-height:1.05}
+.team-arc_item .team-card_meta{text-align:center}
+}
