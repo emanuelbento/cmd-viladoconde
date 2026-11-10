@@ -114,3 +114,14 @@
 /* ---------- Equipa: barra de filtros e vista separada da grelha ---------- */
 .team_bar{margin-bottom:2rem}
 @media (max-width:767px){.team_bar{flex-direction:column;align-items:flex-start;gap:1.25rem;margin-bottom:1.75rem}}
+.rv2_meta::before{content:"Google · "}
+.rv2_meta.w-dyn-bind-empty::before{content:"Google"}
+.rv2_meta.w-dyn-bind-empty{display:block}
+/* ---------- Fotografia: o mesmo tratamento em todo o site ---------- */
+.case_visual{position:relative;overflow:hidden}
+.case_visual .case_formato{position:relative;z-index:2}
+.case_visual::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(42,26,19,.55),rgba(42,26,19,0) 55%);pointer-events:none}
+.case_img{transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
+.case_card:hover .case_img{transform:scale(1.04)}
+.team_img,.team-card_img,.med_img,.team-arc_item img,.tpv img{object-position:50% 30%!important}
+.team_img,.team-card_img,.med_img,.team-arc_item img,.espd_img,.esp_img,.gal_img,.case_img,.cpv_img,.nav_mega-img,.tpv img{filter:sepia(.1) saturate(.9) contrast(.97) brightness(1.01)}
