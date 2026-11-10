@@ -146,3 +146,6 @@
 .team-arc_item .team-card_name{font-size:1.5rem;line-height:1.05}
 .team-arc_item .team-card_meta{text-align:center}
 }
+/* drawer step 3 fit */
+.book_panel .book_fields{row-gap:1rem!important}
+.book_panel textarea{min-height:0!important;height:5rem!important}
