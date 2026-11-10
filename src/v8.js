@@ -98,4 +98,6 @@ $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-lis
     const r=$(".cases-index_row.is-active");if(!r)return;const[a,b]=pick(r);if(!a)return;
     n.classList.add("has-img");const ba=n.classList.contains("is-ba")&&b;
     n.insertAdjacentHTML("afterbegin",`<img class="cpv_img" src="${a}" alt="">${ba?`<img class="cpv_img" src="${b}" alt="">`:""}`)}))).observe(pi,{childList:true})})();
+  /* CMS links: base + slug */
+  document.querySelectorAll("a[data-href-base][data-slug]").forEach(a=>{const sl=a.getAttribute("data-slug");sl&&a.setAttribute("href",a.getAttribute("data-href-base")+sl)});
 })();
