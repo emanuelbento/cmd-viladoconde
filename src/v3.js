@@ -87,15 +87,14 @@ if(ci){const list=$("[data-cases-list]",ci),fl=$("[data-cases-filters]",ci),pv=$
       const show=r=>{const x=meta[+r.dataset.i];if(cur===r)return;cur=r;rows.forEach(o=>o.classList.toggle("is-active",o===r));list.classList.add("is-hovering");
         const el=document.createElement("div");el.className="cpv "+(x.ba?"is-ba":"is-path");el.innerHTML=`${x.ba?'<span class="cpv_line"></span>':""}<span class="cpv_label">${esc(x.f)}</span><span class="cpv_title">${esc(x.t)}</span>`;pi.appendChild(el);
         gsap.fromTo(el,{clipPath:"inset(100% 0% 0% 0%)"},{clipPath:"inset(0% 0% 0% 0%)",duration:.7,ease:"expo.out",onComplete:()=>{while(pi.children.length>1)pi.firstChild.remove()}});
-        gsap.to(pv,{autoAlpha:1,scale:1,duration:.5,ease:"expo.out"})};
+        gsap.to(pv,{autoAlpha:1,scale:1,duration:.5,ease:"expo.out",overwrite:"auto"})};
       list.addEventListener("pointermove",e=>{qx(e.clientX);qy(e.clientY);qr(Math.max(-8,Math.min(8,(e.clientX-lx)*.4)));lx=e.clientX;const r=e.target.closest(".cases-index_row");r&&show(r)});
-      let ly=-1;const hide=()=>{if(!cur&&!list.classList.contains("is-hovering"))return;cur=null;list.classList.remove("is-hovering");rows.forEach(o=>o.classList.remove("is-active"));gsap.to(pv,{autoAlpha:0,scale:.8,duration:.4,ease:"power2.out"})};
-      list.addEventListener("pointermove",e=>{ly=e.clientY},{passive:true});
+      const hide=()=>{if(!cur&&!list.classList.contains("is-hovering"))return;cur=null;list.classList.remove("is-hovering");rows.forEach(o=>o.classList.remove("is-active"));gsap.killTweensOf(pv,"autoAlpha,scale");gsap.to(pv,{autoAlpha:0,scale:.8,duration:.35,ease:"power2.out",overwrite:"auto"})};
       list.addEventListener("pointerleave",hide);
-      /* Ao fazer scroll o rato não se mexe, por isso o pointerleave não dispara: confirmamos a cada frame de scroll se o ponteiro ainda está sobre a lista. */
-      const chk=()=>{if(!cur)return;const r=list.getBoundingClientRect();(ly<r.top||ly>r.bottom)&&hide()};
-      window.addEventListener("scroll",chk,{passive:true});window.cmdLenis&&cmdLenis.on&&cmdLenis.on("scroll",chk);
-      G&&ScrollTrigger.create({trigger:list,start:"top bottom",end:"bottom top",onLeave:hide,onLeaveBack:hide})}
+      /* À prova de scroll: enquanto a pré-visualização está aberta, verifica a cada frame se o ponteiro ainda está sobre uma linha. */
+      let px=-1,py=-1;addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY},{passive:true});
+      document.documentElement.addEventListener("pointerleave",hide);addEventListener("blur",hide);
+      gsap.ticker.add(()=>{if(!cur)return;document.elementsFromPoint(px,py).some(e=>e!==list&&list.contains(e))||hide()})}
     armWt();window.cmdLenis&&cmdLenis.resize();G&&ScrollTrigger.refresh()};
   if(native)build();
   else fetch("/casos").then(r=>r.text()).then(h=>{const d=new DOMParser().parseFromString(h,"text/html");

@@ -42,16 +42,11 @@ $$("[data-book-drawer], .book_body").forEach(el=>el.setAttribute("data-lenis-pre
     A?gsap.fromTo(nb,{clipPath:"inset(100% 0% 0% 0%)",scale:1.08},{clipPath:"inset(0% 0% 0% 0%)",scale:1,duration:.8,ease:"expo.out",onComplete:()=>{const all=$$(".nav_mega-img",big.parentElement);all.slice(0,-1).forEach(x=>x.remove())}}):($$(".nav_mega-img",big.parentElement).slice(0,-1).forEach(x=>x.remove()))}));
   void imgs})();
 
-/* ---------- "Seguinte": a etiqueta do cursor é absorvida pela seta ---------- */
-(()=>{if(!FINE||!A)return;const cur=$("[data-cursor]"),lab=$("[data-cursor-label]");if(!cur)return;
-  $$(".next_link").forEach(a=>{const ar=$(".next_arrow",a);if(!ar)return;
-    ar.addEventListener("pointerenter",()=>{const r=ar.getBoundingClientRect();ar.classList.add("is-absorb");
-      gsap.killTweensOf(lab);gsap.to(lab,{opacity:0,duration:.15});
-      gsap.to(cur,{width:r.width*.5,height:r.height*.5,marginLeft:-r.width*.25,marginTop:-r.height*.25,duration:.35,ease:"power3.in"});
-      gsap.to(cur,{autoAlpha:0,duration:.25,delay:.18,ease:"power2.in"})});
-    ar.addEventListener("pointerleave",e=>{ar.classList.remove("is-absorb");if(!a.contains(e.relatedTarget))return;
-      gsap.killTweensOf(cur);gsap.to(cur,{width:76,height:76,marginLeft:-38,marginTop:-38,autoAlpha:1,duration:.55,ease:"expo.out"});
-      gsap.to(lab,{opacity:1,duration:.3,delay:.12})})})})();
+/* ---------- "Seguinte": a etiqueta do cursor encolhe para dentro da seta, que enche a coral ---------- */
+(()=>{if(!FINE)return;const cur=$("[data-cursor]");
+  $$(".next_arrow").forEach(ar=>{const on=()=>{ar.classList.add("is-absorb");cur&&cur.classList.add("is-absorbed")},off=()=>{ar.classList.remove("is-absorb");cur&&cur.classList.remove("is-absorbed")};
+    ar.addEventListener("pointerenter",on);ar.addEventListener("pointerleave",off);const l=ar.closest("a");l&&l.addEventListener("pointerleave",off)});
+  addEventListener("pagehide",()=>cur&&cur.classList.remove("is-absorbed"))})();
 
 /* ---------- Percursos: a linha desenha-se com o scroll e acende cada etapa ---------- */
 $$("[data-pex2]").forEach(sec=>{const fill=$(".pex2_fill",sec),steps=$$(".pex2_step",sec),list=$(".pex2_steps",sec);if(!list)return;

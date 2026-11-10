@@ -79,11 +79,11 @@ $$("[data-logo-wall]").forEach(root=>{const src=$$("[data-lw-item]",root);if(!sr
 /* ---------- Galeria em cascata: o slide ativo abre ao centro, os vizinhos ficam em tiras.
    Avança sozinha (a linha é o temporizador), arrasta-se com o rato ou o dedo, setas e teclado. ---------- */
 $$("[data-cslider]").forEach(vp=>{const slides=$$("[data-cs-slide]",vp);const n=slides.length;if(n<2||!G)return;
-  const BP=[[479,.8,.07],[767,.72,.09],[991,.62,.1],[1e9,.56,.12]],GAP=8,DUR=5.5;let act=0,W=0,cen={},wid={};
+  const BP=[[479,.76,.08],[767,.7,.09],[991,.62,.1],[1e9,.56,.12]],GAP=8,DUR=5.5;let act=0,W=0,cen={},wid={};
   const meas=()=>{const vw=vp.offsetWidth,b=BP.find(x=>innerWidth<=x[0]),aw=vw*b[1],sw=vw*b[2],fw=Math.max(0,(vw-aw-2*sw-4*GAP)/2);W=aw;
-    const sl=[[-2,fw],[-1,sw],[0,aw],[1,sw],[2,fw]];let x=0;sl.forEach(([k,w],i)=>{cen[k]=x+w/2;wid[k]=w;x+=w+GAP});
+    const sl=[[-2,fw],[-1,sw],[0,aw],[1,sw],[2,fw]];let x=(vw-(aw+2*sw+2*fw+4*GAP))/2;sl.forEach(([k,w],i)=>{cen[k]=x+w/2;wid[k]=w;x+=w+GAP});
     cen[-3]=cen[-2]-fw-GAP;wid[-3]=fw;cen[3]=cen[2]+fw+GAP;wid[3]=fw;slides.forEach(s=>s.style.width=W+"px")};
-  const props=o=>{const c=Math.max(-3,Math.min(3,o));return{x:cen[c]-W/2,"--clip":Math.max(0,(W-wid[c])/2),zIndex:10-Math.abs(c)}};
+  const props=o=>{const c=Math.max(-3,Math.min(3,o));return{x:cen[c]-W/2,xPercent:0,"--clip":Math.max(0,(W-wid[c])/2),zIndex:10-Math.abs(c)}};
   const arr='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   /* a navegação existe no Designer (.cs_nav a seguir à galeria); só é criada aqui se faltar */
   let nav=vp.parentElement.querySelector(".cs_nav");
@@ -104,7 +104,9 @@ $$("[data-cslider]").forEach(vp=>{const slides=$$("[data-cs-slide]",vp);const n=
   addEventListener("keydown",e=>{const r=vp.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;e.key==="ArrowRight"&&go(act+1);e.key==="ArrowLeft"&&go(act-1)});
   /* arrastar: o conjunto segue o dedo e decide ao largar */
   let d=null,moved=false;
-  vp.addEventListener("pointerdown",e=>{if(e.button)return;d={x:e.clientX,y:e.clientY,lock:null};moved=false;tw&&tw.pause()},{passive:true});
+  vp.style.touchAction="pan-y";
+  vp.addEventListener("pointerdown",e=>{if(e.button)return;d={x:e.clientX,y:e.clientY,lock:null,id:e.pointerId};moved=false;tw&&tw.pause()},{passive:true});
+  addEventListener("pointercancel",()=>{if(!d)return;d=null;vp.classList.remove("is-drag");gsap.to(slides,{xPercent:0,duration:.6,ease:"power3.out"});tw?tw.resume():timer()});
   addEventListener("pointermove",e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(d.lock===null&&Math.abs(dx)+Math.abs(dy)>6)d.lock=Math.abs(dx)>Math.abs(dy);if(!d.lock)return;moved=true;
     vp.classList.add("is-drag");gsap.to(slides,{xPercent:dx/W*18,duration:.3,ease:"power3.out",overwrite:"auto"})},{passive:true});
   addEventListener("pointerup",e=>{if(!d)return;const dx=e.clientX-d.x,lock=d.lock;d=null;vp.classList.remove("is-drag");gsap.to(slides,{xPercent:0,duration:.6,ease:"power3.out"});

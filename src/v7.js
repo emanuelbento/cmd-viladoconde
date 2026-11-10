@@ -19,16 +19,19 @@ const arrow='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l
   const parse=c=>{const m=c.match(/[\d.]+/g)||[243,234,228];return m.slice(0,3).map(Number)};
   window.cmdCurtain=(u,dir,p)=>{if(!u)return;setup(u);if(cv.width!==Math.round(innerWidth*Math.min(devicePixelRatio||1,2)))size();
     u.style.background="transparent";u.style.clipPath="none";
-    /* como na entrada da hero: cada fio desenha-se ao longo do ecrã, depois engrossa até cobrir.
-       À saída faz o caminho inverso e recolhe para a direita. */
-    const q=dir==="in"?p:1-p,N=W<768?22:34,h=H/N,base=parse(bg),mid=(N-1)/2,cl=t=>Math.min(1,Math.max(0,t)),sm=t=>t*t*(3-2*t);
+    /* Fios finos como os da hero desenham-se pelo ecrã; por trás, a cor de fundo entra em fade suave.
+       Sem faixas a engrossar: só linha e opacidade, para ficar fluido. */
+    const q=dir==="in"?p:1-p,N=W<768?9:14,base=parse(bg),cl=t=>Math.min(1,Math.max(0,t)),sm=t=>t*t*(3-2*t);
     cx.clearRect(0,0,W,H);if(q<=0){if(dir!=="in"){u.style.background=""}return}
-    for(let i=0;i<N;i++){const d=Math.abs(i-mid)/mid*.22,r=cl((q-d)/.78);if(r<=0)continue;
-      const L=sm(cl(r/.55)),k=sm(cl((r-.32)/.68)),A=h*1.5*(1-k),y0=(i+.5)*h,th=1.2+(h*1.3+2*A)*k,ph=i*.5+q*2.4;
-      const c=k<.5?coral.map((v,j)=>Math.round(v+(base[j]-v)*(k/.5))):base;
+    const fill=sm(cl((q-.3)/.6));
+    if(fill>0){cx.fillStyle=`rgba(${base[0]},${base[1]},${base[2]},${fill})`;cx.fillRect(0,0,W,H)}
+    const la=1-sm(cl((q-.72)/.28));if(la<=0)return;
+    const amp=H*.07,mid=(N-1)/2;cx.lineWidth=1.25;cx.lineCap="round";
+    for(let i=0;i<N;i++){const d=Math.abs(i-mid)/mid*.18,L=sm(cl((q-d)/.55));if(L<=0)continue;
+      const y0=H*(.12+.76*i/(N-1)),ph=i*.42+q*1.6;
       const xa=dir==="in"?-30:-30+(W+60)*(1-L),xb=dir==="in"?-30+(W+60)*L:W+30;
-      cx.strokeStyle=`rgb(${c[0]},${c[1]},${c[2]})`;cx.lineWidth=th;cx.lineCap="round";cx.beginPath();
-      for(let x=xa;x<=xb+12;x+=12){const xx=Math.min(x,xb),y=y0+A*Math.sin(xx*.0055+ph);x===xa?cx.moveTo(xx,y):cx.lineTo(xx,y)}
+      cx.strokeStyle=`rgba(${coral[0]},${coral[1]},${coral[2]},${la*(.55+.45*(1-Math.abs(i-mid)/mid))})`;cx.beginPath();
+      for(let x=xa;x<=xb+10;x+=10){const xx=Math.min(x,xb),y=y0+amp*Math.sin(xx/W*Math.PI*2+ph)+amp*.35*Math.sin(xx/W*Math.PI*5-ph*.7);x===xa?cx.moveTo(xx,y):cx.lineTo(xx,y)}
       cx.stroke()}};
 })();
 
