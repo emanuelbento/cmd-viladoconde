@@ -8,42 +8,7 @@ const snd=(n,o)=>window.cmdSound&&cmdSound.play(n,o);
 const refresh=()=>{window.cmdLenis&&cmdLenis.resize();window.ScrollTrigger&&ScrollTrigger.refresh()};
 
 /* ---------- CSS que só existe com JS (o Designer fica limpo) ---------- */
-const css=`
-.wt_ln,.split-line:has(.wt_ch),.hero_line:has(.wt_ch),[data-wt-line]:has(.wt_ch){white-space:nowrap}
-.filter_btn{position:relative}
-.filter_btn[aria-pressed=true]::after{content:"";position:absolute;right:.55rem;top:.55rem;width:5px;height:5px;border-radius:50%;background:var(--_base-color---brand--coral,#ea6f4e)}
-.filter_clear{appearance:none;border:0;background:none;padding:0 .5rem;font:inherit;font-size:.8125rem;font-weight:600;color:var(--_base-color---brand--borgonha,#7d2b1f);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.filter_clear[hidden]{display:none}
-.vt{display:inline-flex;position:relative;padding:.3rem;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(106,68,49,.14)}
-.vt_btn{appearance:none;border:0;background:none;position:relative;z-index:1;height:2.2rem;padding:0 1rem;border-radius:999px;font:inherit;font-size:.8125rem;font-weight:600;color:var(--_base-color---brand--tinta,#2a1a13);cursor:pointer;transition:color .35s}
-.vt_btn[aria-pressed=true]{color:var(--_base-color---brand--branco,#fff)}
-.vt_ind{position:absolute;top:.3rem;bottom:.3rem;left:0;border-radius:999px;background:var(--_base-color---brand--tinta,#2a1a13);pointer-events:none}
-.team_bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem}
-[data-team-view=list] .team_grid{display:block!important}
-[data-team-view=list] .team_grid>*{border-bottom:1px solid rgba(106,68,49,.14)}
-[data-team-view=list] .team_card{display:grid!important;grid-template-columns:minmax(0,1fr) auto 2.5rem;align-items:center;gap:1.5rem;padding:1.4rem 0}
-[data-team-view=list] .team_photo{display:contents}
-[data-team-view=list] .team_img{display:none}
-[data-team-view=list] .team_esp{order:2;position:static!important;margin:0}
-[data-team-view=list] .team_meta{order:1;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
-[data-team-view=list] .team_name{font-size:clamp(1.6rem,2.6vw,2.4rem);transition:transform .6s cubic-bezier(.16,1,.3,1)}
-[data-team-view=list] .team_card::after{content:"";order:3;width:2.5rem;height:2.5rem;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(106,68,49,.14);background:center/16px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6' fill='none' stroke='%232a1a13' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");transition:transform .6s cubic-bezier(.16,1,.3,1),background-color .4s}
-[data-team-view=list] .team_grid.is-hovering>*{opacity:.38;transition:opacity .4s}
-[data-team-view=list] .team_grid.is-hovering>.is-active{opacity:1}
-[data-team-view=list] .is-active .team_name{transform:translateX(1rem)}
-[data-team-view=list] .is-active .team_card::after{transform:rotate(-45deg);background-color:var(--_base-color---support--marfim,#f3eae4)}
-.tpv{position:fixed;left:0;top:0;z-index:50;width:15rem;aspect-ratio:3/4;border-radius:18px;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;background:var(--_base-color---support--marfim,#f3eae4)}
-.tpv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-@media (max-width:767px){[data-team-view=list] .team_card{grid-template-columns:minmax(0,1fr) 2.5rem}[data-team-view=list] .team_esp{grid-column:1/2}}
-.lw{display:grid;grid-template-columns:repeat(var(--lw-cols,4),minmax(0,1fr));border-top:1px solid rgba(106,68,49,.14);border-left:1px solid rgba(106,68,49,.14)}
-.lw_cell{position:relative;aspect-ratio:3/2;border-right:1px solid rgba(106,68,49,.14);border-bottom:1px solid rgba(106,68,49,.14);display:grid;place-items:center;overflow:hidden}
-.lw_item{position:absolute;inset:0;display:grid;place-items:center;padding:1.25rem;text-align:center}
-.lw_item img{max-width:62%;max-height:46%;object-fit:contain;filter:grayscale(1);opacity:.8}
-.lw_name{font-family:var(--_typography---font--primary);font-size:clamp(1.05rem,1.5vw,1.35rem);font-weight:300;line-height:1.1;color:var(--_base-color---brand--tinta,#2a1a13)}
-.lw_kind{position:absolute;left:.9rem;top:.8rem;font-size:.625rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--_base-color---support--muted,#8a766b)}
-@media (max-width:991px){.lw{--lw-cols:3}}[data-cslider]{position:relative;height:clamp(22rem,58vh,40rem);overflow:hidden;display:block!important;cursor:auto}[data-cslider] [data-cs-slide]{position:absolute!important;left:0;top:0;height:100%;margin:0;will-change:transform,clip-path;clip-path:inset(0 calc(var(--clip,0)*1px) round 18px);cursor:pointer;-webkit-user-select:none;user-select:none}[data-cslider] [data-cs-slide][data-status=active]{cursor:default}[data-cslider] .gal_frame{position:absolute!important;inset:0;width:auto!important;height:auto!important;aspect-ratio:auto!important;border-radius:0!important;overflow:hidden}[data-cslider] .gal_img,[data-cslider] .gal_frame img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;transform:scale(1.08);transition:transform 1.2s cubic-bezier(.16,1,.3,1)}[data-cslider] [data-status=active] .gal_frame img{transform:scale(1)}[data-cslider] .gal_cap{position:absolute!important;left:0;right:0;bottom:0;z-index:2;margin:0!important;padding:4rem 1.75rem 1.5rem;background:linear-gradient(0deg,rgba(42,26,19,.55),transparent);color:#fff;font-family:var(--_typography---font--primary);font-size:clamp(1.3rem,2vw,1.9rem);font-weight:300;line-height:1.05;opacity:0;transform:translateY(.4em);transition:opacity .3s,transform .3s cubic-bezier(.645,.045,.355,1)}[data-cslider] [data-status=active] .gal_cap{opacity:1;transform:none;transition-delay:.35s}.cs_nav{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:1.5rem}.cs_count{font-variant-numeric:tabular-nums;font-size:.8125rem;font-weight:600;letter-spacing:.08em;color:var(--_base-color---brand--tinta,#2a1a13)}.cs_line{flex:1;height:1px;background:rgba(106,68,49,.14);position:relative;overflow:hidden}.cs_line i{position:absolute;inset:0;background:var(--_base-color---brand--tinta,#2a1a13);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .65s cubic-bezier(.65,0,.35,1)}.cs_btns{display:flex;gap:.5rem}.cs_btn{appearance:none;border:0;width:2.75rem;height:2.75rem;border-radius:50%;display:grid;place-items:center;background:transparent;box-shadow:inset 0 0 0 1px rgba(106,68,49,.14);color:var(--_base-color---brand--tinta,#2a1a13);cursor:pointer;transition:background-color .3s,color .3s}.cs_btn:hover{background:var(--_base-color---brand--tinta,#2a1a13);color:#fff}.cs_btn svg{width:18px;height:18px}.cs_btn.is-prev svg{transform:rotate(180deg)}.gal_progress:has(+ .cs_nav),.cs_hide{display:none!important}@media (max-width:479px){.lw{--lw-cols:2}}
-`;
-const st=document.createElement("style");st.id="cmd-v6";st.textContent=css;document.head.appendChild(st);
+/* CSS no Global Styles do Designer (css/v6.css) */
 
 /* ---------- Rótulos do cursor onde ainda não existem ---------- */
 [[".case_card","Ver caso"],[".cases-index_row","Ver caso"],[".esp_link","Explorar"],[".others_grid .team_card","Perfil"],["[data-cslider] [data-cs-slide]","Ver"]]
@@ -112,35 +77,41 @@ $$("[data-logo-wall]").forEach(root=>{const src=$$("[data-lw-item]",root);if(!sr
   if(window.ScrollTrigger&&A)ScrollTrigger.create({trigger:root,start:"top bottom",end:"bottom top",onToggle:s=>tl&&(s.isActive?tl.play():tl.pause())});
   document.addEventListener("visibilitychange",()=>tl&&(document.hidden?tl.pause():tl.play()))});
 /* ---------- Galeria em cascata: o slide ativo abre ao centro, os vizinhos ficam em tiras.
-   No desktop avança com o scroll (secção fixa); no telemóvel com o dedo ou as setas. ---------- */
+   Avança sozinha (a linha é o temporizador), arrasta-se com o rato ou o dedo, setas e teclado. ---------- */
 $$("[data-cslider]").forEach(vp=>{const slides=$$("[data-cs-slide]",vp);const n=slides.length;if(n<2||!G)return;
-  const BP=[[479,.8,.07],[767,.72,.09],[991,.62,.1],[1e9,.56,.12]],GAP=8;let act=0,W=0,cen={},wid={};
+  const BP=[[479,.8,.07],[767,.72,.09],[991,.62,.1],[1e9,.56,.12]],GAP=8,DUR=5.5;let act=0,W=0,cen={},wid={};
   const meas=()=>{const vw=vp.offsetWidth,b=BP.find(x=>innerWidth<=x[0]),aw=vw*b[1],sw=vw*b[2],fw=Math.max(0,(vw-aw-2*sw-4*GAP)/2);W=aw;
     const sl=[[-2,fw],[-1,sw],[0,aw],[1,sw],[2,fw]];let x=0;sl.forEach(([k,w],i)=>{cen[k]=x+w/2;wid[k]=w;x+=w+GAP});
     cen[-3]=cen[-2]-fw-GAP;wid[-3]=fw;cen[3]=cen[2]+fw+GAP;wid[3]=fw;slides.forEach(s=>s.style.width=W+"px")};
   const props=o=>{const c=Math.max(-3,Math.min(3,o));return{x:cen[c]-W/2,"--clip":Math.max(0,(W-wid[c])/2),zIndex:10-Math.abs(c)}};
-  const nav=document.createElement("div");nav.className="cs_nav";
   const arr='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  nav.innerHTML=`<span class="cs_count" aria-live="polite"></span><span class="cs_line"><i></i></span><span class="cs_btns"><button type="button" class="cs_btn is-prev" aria-label="Fotografia anterior">${arr}</button><button type="button" class="cs_btn" aria-label="Fotografia seguinte">${arr}</button></span>`;
-  vp.after(nav);const cnt=$(".cs_count",nav),ln=$(".cs_line",nav);$$("[data-drag-progress]").forEach(p=>p.parentElement.classList.add("cs_hide"));
+  /* a navegação existe no Designer (.cs_nav a seguir à galeria); só é criada aqui se faltar */
+  let nav=vp.parentElement.querySelector(".cs_nav");
+  if(!nav){nav=document.createElement("div");nav.className="cs_nav";nav.innerHTML=`<span class="cs_count" aria-live="polite"></span><span class="cs_line"><i></i></span><span class="cs_btns"><button type="button" class="cs_btn is-prev" aria-label="Fotografia anterior">${arr}</button><button type="button" class="cs_btn" aria-label="Fotografia seguinte">${arr}</button></span>`;vp.after(nav)}
+  const cnt=$(".cs_count",nav),ln=$(".cs_line",nav);$$("[data-drag-progress]").forEach(p=>p.parentElement.classList.add("cs_hide"));
   vp.setAttribute("aria-roledescription","carousel");slides.forEach((s,i)=>{s.setAttribute("aria-roledescription","slide");s.setAttribute("aria-label",`${i+1} de ${n}`)});
   const off=i=>{let d=i-act;const h=n/2;d>h&&(d-=n);d<-h&&(d+=n);return d},prev=slides.map(()=>null);
+  const tm={t:0};let tw=null,inView=false,hover=false;
+  const paint=()=>ln&&ln.style.setProperty("--p",(act+tm.t)/n);
   const lay=anim=>{slides.forEach((s,i)=>{const o=off(i),p=props(o);if(A&&anim&&prev[i]!==null&&Math.abs(o-prev[i])>2)gsap.set(s,props(o>0?3:-3));prev[i]=o;s.dataset.status=o===0?"active":"inactive";s.setAttribute("aria-hidden",String(o!==0));
-      A&&anim?gsap.to(s,{...p,duration:.75,ease:"power3.inOut",overwrite:true}):gsap.set(s,p)});
-    cnt.textContent=String(act+1).padStart(2,"0")+" / "+String(n).padStart(2,"0");ln.style.setProperty("--p",(act+1)/n)};
-  let st=null;
-  const go=(i,fromScroll)=>{i=Math.max(0,Math.min(n-1,i));if(i===act)return;act=i;snd("tick",{p:1+i*.04});lay(true);
-    if(!fromScroll&&st){const y=st.start+(st.end-st.start)*(i/(n-1));window.cmdLenis?cmdLenis.scrollTo(y,{duration:1}):scrollTo({top:y,behavior:"smooth"})}};
-  meas();lay(false);
-  $(".is-prev",nav).addEventListener("click",()=>go(act-1));$(".cs_btn:not(.is-prev)",nav).addEventListener("click",()=>go(act+1));
-  slides.forEach((s,i)=>s.addEventListener("click",()=>go(i)));
+      A&&anim?gsap.to(s,{...p,duration:1.05,ease:"expo.inOut",overwrite:true}):gsap.set(s,p)});
+    cnt&&(cnt.textContent=String(act+1).padStart(2,"0")+" / "+String(n).padStart(2,"0"))};
+  const timer=()=>{tw&&tw.kill();tm.t=0;paint();if(!A||!inView||hover)return;
+    tw=gsap.to(tm,{t:1,duration:DUR,ease:"none",onUpdate:paint,onComplete:()=>go(act+1)})};
+  const go=i=>{i=(i%n+n)%n;if(i===act){timer();return}act=i;lay(true);timer()};
+  meas();lay(false);paint();
+  const pb=$(".cs_btn.is-prev",nav),nb=$(".cs_btn:not(.is-prev)",nav);pb&&pb.addEventListener("click",()=>go(act-1));nb&&nb.addEventListener("click",()=>go(act+1));
   addEventListener("keydown",e=>{const r=vp.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;e.key==="ArrowRight"&&go(act+1);e.key==="ArrowLeft"&&go(act-1)});
-  let sx=null;vp.addEventListener("pointerdown",e=>{sx=e.clientX},{passive:true});addEventListener("pointerup",e=>{if(sx===null)return;const d=e.clientX-sx;sx=null;Math.abs(d)>40&&go(act+(d<0?1:-1))},{passive:true});
-  let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{meas();lay(false)},120)});
-  /* desktop: a secção fica fixa e cada porção de scroll muda de fotografia */
-  if(A&&window.ScrollTrigger&&innerWidth>991){const sec=vp.closest("section")||vp.parentElement;
-    st=ScrollTrigger.create({trigger:sec,start:"center center",end:()=>"+="+(n-1)*innerHeight*.5,pin:true,anticipatePin:1,
-      onUpdate:s=>go(Math.round(s.progress*(n-1)),true)})}});
-
+  /* arrastar: o conjunto segue o dedo e decide ao largar */
+  let d=null,moved=false;
+  vp.addEventListener("pointerdown",e=>{if(e.button)return;d={x:e.clientX,y:e.clientY,lock:null};moved=false;tw&&tw.pause()},{passive:true});
+  addEventListener("pointermove",e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(d.lock===null&&Math.abs(dx)+Math.abs(dy)>6)d.lock=Math.abs(dx)>Math.abs(dy);if(!d.lock)return;moved=true;
+    vp.classList.add("is-drag");gsap.to(slides,{xPercent:dx/W*18,duration:.3,ease:"power3.out",overwrite:"auto"})},{passive:true});
+  addEventListener("pointerup",e=>{if(!d)return;const dx=e.clientX-d.x,lock=d.lock;d=null;vp.classList.remove("is-drag");gsap.to(slides,{xPercent:0,duration:.6,ease:"power3.out"});
+    if(lock&&Math.abs(dx)>40)go(act+(dx<0?1:-1));else tw?tw.resume():timer()});
+  slides.forEach((s,i)=>s.addEventListener("click",e=>{if(moved){e.preventDefault();return}go(i)}));
+  vp.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse"){hover=true;tw&&tw.pause()}});vp.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){hover=false;tw?tw.resume():timer()}});
+  new IntersectionObserver(es=>{inView=es[0].isIntersecting;inView?(tw?tw.resume():timer()):tw&&tw.pause()},{threshold:.3}).observe(vp);
+  let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{meas();lay(false)},120)})});
 
 })();

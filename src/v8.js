@@ -1,0 +1,106 @@
+/* CMD · v8
+   Mega menu das especialidades, avaliações linha a linha, percursos simplificados,
+   cursor absorvido pela seta do "seguinte", pré-visualização dos casos com fotografia, gaveta com scroll. */
+(()=>{"use strict";
+const $=(s,c=document)=>c.querySelector(s),$$=(s,c=document)=>[...c.querySelectorAll(s)];
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches,G=!!window.gsap,A=G&&!RM;
+const FINE=matchMedia("(hover: hover) and (pointer: fine)").matches;
+G&&window.SplitText&&gsap.registerPlugin(SplitText);
+window.ScrollTrigger&&ScrollTrigger.config({ignoreMobileResize:true});
+
+/* ---------- Gaveta de marcação: o scroll interno não é capturado pelo Lenis ---------- */
+$$("[data-book-drawer], .book_body").forEach(el=>el.setAttribute("data-lenis-prevent",""));
+(()=>{const dr=$("[data-book-drawer]");if(!dr||!window.cmdLenis)return;
+  const sync=()=>{const open=getComputedStyle(dr).visibility!=="hidden"&&dr.getBoundingClientRect().width>0&&getComputedStyle(dr).opacity!=="0";open?cmdLenis.stop():cmdLenis.start()};
+  new MutationObserver(sync).observe(dr,{attributes:true,attributeFilter:["class","style","aria-hidden","hidden"]})})();
+
+/* ---------- Mega menu das especialidades ---------- */
+(()=>{const nav=$("[data-nav]"),mega=$("[data-mega]"),trg=$("[data-mega-trigger]");if(!nav||!mega||!trg||!FINE)return;
+  const imgs=$$(".nav_mega-img",mega),links=$$(".nav_mega-link",mega),thumbs=links.map(l=>$(".nav_mega-thumb",l));
+  const big=$(".nav_mega-visual img",mega);
+  let open=false,t=null,tl=null;
+  const items=$$(".nav_mega-intro > *, .nav_mega-link, .nav_mega-visual",mega);
+  const show=()=>{clearTimeout(t);if(open)return;open=true;nav.classList.add("is-mega");trg.classList.add("is-mega-open");trg.setAttribute("aria-expanded","true");
+    if(!A){mega.style.clipPath="none";return}
+    tl&&tl.kill();tl=gsap.timeline();
+    tl.fromTo(mega,{clipPath:"inset(0% 0% 100% 0%)"},{clipPath:"inset(0% 0% 0% 0%)",duration:.75,ease:"expo.out"})
+      .fromTo(items,{y:14,autoAlpha:0},{y:0,autoAlpha:1,duration:.7,stagger:.025,ease:"expo.out"},.08)};
+  const hide=(now)=>{clearTimeout(t);t=setTimeout(()=>{if(!open)return;open=false;trg.classList.remove("is-mega-open");trg.setAttribute("aria-expanded","false");
+    if(!A){nav.classList.remove("is-mega");mega.style.clipPath="";return}
+    tl&&tl.kill();tl=gsap.timeline({onComplete:()=>nav.classList.remove("is-mega")});
+    tl.to(mega,{clipPath:"inset(0% 0% 100% 0%)",duration:.5,ease:"expo.inOut"})},now?0:160)};
+  trg.setAttribute("aria-haspopup","true");trg.setAttribute("aria-expanded","false");
+  trg.addEventListener("pointerenter",show);trg.addEventListener("focus",show);
+  [trg,mega].forEach(el=>el.addEventListener("pointerleave",e=>{const to=e.relatedTarget;if(to&&(mega.contains(to)||trg.contains(to)))return;hide()}));
+  mega.addEventListener("pointerenter",()=>clearTimeout(t));
+  $$(".nav_link",nav).forEach(l=>l!==trg&&l.addEventListener("pointerenter",()=>hide(true)));
+  addEventListener("keydown",e=>e.key==="Escape"&&hide(true));
+  addEventListener("scroll",()=>open&&hide(true),{passive:true});
+  /* imagem grande acompanha a especialidade em hover */
+  if(big)links.forEach((l,i)=>l.addEventListener("pointerenter",()=>{const th=thumbs[i];if(!th||!th.getAttribute("src")||big.getAttribute("src")===th.getAttribute("src"))return;
+    const nb=big.cloneNode();nb.src=th.currentSrc||th.src;nb.removeAttribute("srcset");nb.removeAttribute("sizes");big.parentElement.appendChild(nb);
+    A?gsap.fromTo(nb,{clipPath:"inset(100% 0% 0% 0%)",scale:1.08},{clipPath:"inset(0% 0% 0% 0%)",scale:1,duration:.8,ease:"expo.out",onComplete:()=>{const all=$$(".nav_mega-img",big.parentElement);all.slice(0,-1).forEach(x=>x.remove())}}):($$(".nav_mega-img",big.parentElement).slice(0,-1).forEach(x=>x.remove()))}));
+  void imgs})();
+
+/* ---------- "Seguinte": a etiqueta do cursor é absorvida pela seta ---------- */
+(()=>{if(!FINE||!A)return;const cur=$("[data-cursor]"),lab=$("[data-cursor-label]");if(!cur)return;
+  $$(".next_link").forEach(a=>{const ar=$(".next_arrow",a);if(!ar)return;
+    ar.addEventListener("pointerenter",()=>{const r=ar.getBoundingClientRect();ar.classList.add("is-absorb");
+      gsap.killTweensOf(lab);gsap.to(lab,{opacity:0,duration:.15});
+      gsap.to(cur,{width:r.width*.5,height:r.height*.5,marginLeft:-r.width*.25,marginTop:-r.height*.25,duration:.35,ease:"power3.in"});
+      gsap.to(cur,{autoAlpha:0,duration:.25,delay:.18,ease:"power2.in"})});
+    ar.addEventListener("pointerleave",e=>{ar.classList.remove("is-absorb");if(!a.contains(e.relatedTarget))return;
+      gsap.killTweensOf(cur);gsap.to(cur,{width:76,height:76,marginLeft:-38,marginTop:-38,autoAlpha:1,duration:.55,ease:"expo.out"});
+      gsap.to(lab,{opacity:1,duration:.3,delay:.12})})})})();
+
+/* ---------- Percursos: a linha desenha-se com o scroll e acende cada etapa ---------- */
+$$("[data-pex2]").forEach(sec=>{const fill=$(".pex2_fill",sec),steps=$$(".pex2_step",sec),list=$(".pex2_steps",sec);if(!list)return;
+  if(!A||!window.ScrollTrigger){fill&&(fill.style.transform="none");steps.forEach(s=>s.classList.add("is-on"));return}
+  gsap.to(fill,{scaleY:1,ease:"none",scrollTrigger:{trigger:list,start:"top 70%",end:"bottom 55%",scrub:.6}});
+  steps.forEach(s=>ScrollTrigger.create({trigger:s,start:"top 68%",onEnter:()=>s.classList.add("is-on"),onLeaveBack:()=>s.classList.remove("is-on")}));
+  gsap.from(steps,{y:30,autoAlpha:0,duration:1,stagger:.12,ease:"expo.out",scrollTrigger:{trigger:list,start:"top 80%",once:true}})});
+
+/* ---------- Avaliações: uma de cada vez, linha a linha (base Osmo, com arrastar) ---------- */
+$$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-list]",wrap);if(!list)return;
+  const items=$$("[data-testimonial-item]",list);if(!items.length)return;
+  const bP=$("[data-prev]",wrap),bN=$("[data-next]",wrap),elC=$("[data-current]",wrap),elT=$("[data-total]",wrap),pad=n=>String(n).padStart(2,"0");
+  elT&&(elT.textContent=pad(items.length));
+  let act=Math.max(0,items.findIndex(e=>e.classList.contains("is--active")));let busy=false,call=null,inView=false,hover=false;
+  const auto=wrap.getAttribute("data-autoplay")==="true",dur=(parseInt(wrap.getAttribute("data-autoplay-duration"),10)||6000)/1000;
+  const slides=items.map(item=>({item,targets:[$("[data-testimonial-text]",item),...$$("[data-testimonial-split]",item)].filter(Boolean),splits:[],stars:$(".rv2_stars",item),lines(){return this.splits.flatMap(s=>s.lines)}}));
+  const state=(i,on)=>{const it=slides[i].item;it.classList.toggle("is--active",on);it.setAttribute("aria-hidden",String(!on));G?gsap.set(it,{autoAlpha:on?1:0,pointerEvents:on?"auto":"none"}):(it.style.opacity=on?1:0,it.style.visibility=on?"visible":"hidden")};
+  slides.forEach((_,i)=>state(i,i===act));elC&&(elC.textContent=pad(act+1));
+  if(A&&window.SplitText)slides.forEach((s,i)=>{s.splits=s.targets.map(el=>SplitText.create(el,{type:"lines",mask:"lines",linesClass:"text-line",autoSplit:true,onSplit(self){gsap.set(self.lines,{yPercent:i===act?0:110})}}));
+    s.stars&&gsap.set(s.stars,{clipPath:i===act?"inset(0% 0% 0% 0%)":"inset(0% 100% 0% 0%)"})});
+  const go=n=>{if(busy||n===act)return;busy=true;const o=slides[act],inn=slides[n];
+    const done=()=>{state(act,false);state(n,true);act=n;elC&&(elC.textContent=pad(act+1));busy=false};
+    if(!A||!window.SplitText){done();return}
+    const tl=gsap.timeline({onComplete:done});gsap.set(inn.item,{autoAlpha:1,pointerEvents:"auto"});gsap.set(inn.lines(),{yPercent:110});
+    tl.to(o.lines(),{yPercent:-110,duration:.6,ease:"power4.inOut",stagger:{amount:.25}},0);
+    o.stars&&tl.to(o.stars,{clipPath:"inset(0% 0% 0% 100%)",duration:.5,ease:"power4.inOut"},0);
+    tl.to(inn.lines(),{yPercent:0,duration:.75,ease:"power4.inOut",stagger:{amount:.4}},">-=0.3");
+    inn.stars&&tl.fromTo(inn.stars,{clipPath:"inset(0% 100% 0% 0%)"},{clipPath:"inset(0% 0% 0% 0%)",duration:.8,ease:"power4.inOut"},"<");
+    tl.set(o.item,{autoAlpha:0},">")};
+  const next=()=>go((act+1)%slides.length),prev=()=>go((act-1+slides.length)%slides.length);
+  const run=()=>{call&&call.kill();if(!auto||!G||RM||!inView||hover)return;call=gsap.delayedCall(dur,()=>{busy?run():(next(),run())})};
+  bN&&bN.addEventListener("click",()=>{next();run()});bP&&bP.addEventListener("click",()=>{prev();run()});
+  addEventListener("keydown",e=>{if(!inView)return;const t=e.target;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable))return;
+    e.key==="ArrowRight"&&(next(),run());e.key==="ArrowLeft"&&(prev(),run())});
+  /* arrastar ou deslizar */
+  const main=$(".rv2_main",wrap)||list;let d=null;
+  main.addEventListener("pointerdown",e=>{if(e.button)return;d={x:e.clientX,y:e.clientY}},{passive:true});
+  addEventListener("pointermove",e=>{if(!d)return;Math.abs(e.clientX-d.x)>8&&main.classList.add("is-drag")},{passive:true});
+  addEventListener("pointerup",e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d=null;main.classList.remove("is-drag");if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();run()}});
+  wrap.addEventListener("pointerenter",e=>{e.pointerType==="mouse"&&(hover=true,call&&call.kill())});wrap.addEventListener("pointerleave",e=>{e.pointerType==="mouse"&&(hover=false,run())});
+  new IntersectionObserver(es=>{inView=es[0].isIntersecting;inView?run():call&&call.kill()},{threshold:.3}).observe(wrap)});
+
+/* ---------- Índice de casos: fotografia na pré-visualização ---------- */
+(()=>{const pi=$(".cases-index_preview-inner");if(!pi)return;
+  const rows=$$(".cases-index_row");const pick=r=>{const a=$(".cases-index_img-a",r),b=$(".cases-index_img-b",r);const s=x=>x&&x.getAttribute("src")&&!/placeholder/i.test(x.getAttribute("src"))?(x.currentSrc||x.src):"";return[s(a),s(b)]};
+  /* pré-carrega para a imagem aparecer no primeiro hover */
+  rows.forEach(r=>pick(r).forEach(u=>{if(u){const i=new Image;i.src=u}}));
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(!(n instanceof HTMLElement)||!n.classList.contains("cpv"))return;
+    const r=$(".cases-index_row.is-active");if(!r)return;const[a,b]=pick(r);if(!a)return;
+    n.classList.add("has-img");const ba=n.classList.contains("is-ba")&&b;
+    n.insertAdjacentHTML("afterbegin",`<img class="cpv_img" src="${a}" alt="">${ba?`<img class="cpv_img" src="${b}" alt="">`:""}`)}))).observe(pi,{childList:true})})();
+})();

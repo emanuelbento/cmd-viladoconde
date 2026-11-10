@@ -4,37 +4,9 @@ const RM=matchMedia("(prefers-reduced-motion: reduce)").matches,G=!!(window.gsap
 const FINE=matchMedia("(hover: hover) and (pointer: fine)").matches;
 G&&gsap.registerPlugin(...[ScrollTrigger,window.SplitText].filter(Boolean));
 const SC=[0,2,4,7,9,12,14,16],pit=i=>Math.pow(2,SC[i%8]/12);
-
-/* ---------- Som: desligado por defeito. Cliques secos e curtos, sintetizados (sem ficheiros, sem eco):
-   um estalido de ruído filtrado com um "tic" tonal por baixo, como um mecanismo de roda dentada. ---------- */
-const S=(()=>{let ctx=null,out=null,noise=null,on=false;
-  try{on=localStorage.getItem("cmd_sound")==="1"}catch(e){}
-  const init=()=>{if(ctx)return ctx;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;ctx=new AC;
-    const comp=ctx.createDynamicsCompressor();comp.threshold.value=-10;comp.ratio.value=4;comp.attack.value=.001;comp.release.value=.05;
-    out=ctx.createGain();out.gain.value=.9;out.connect(comp);comp.connect(ctx.destination);
-    noise=ctx.createBuffer(1,Math.round(ctx.sampleRate*.05),ctx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);return ctx};
-  /* um clique: f = altura do estalido, v = volume, body = frequência do corpo tonal */
-  const click=(t,{f=3200,v=.5,body=1400,len=.022}={})=>{
-    const n=ctx.createBufferSource();n.buffer=noise;const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f;bp.Q.value=2.2;
-    const g=ctx.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+len);n.connect(bp);bp.connect(g);g.connect(out);n.start(t);n.stop(t+len+.01);
-    const o=ctx.createOscillator(),og=ctx.createGain();o.type="triangle";o.frequency.setValueAtTime(body,t);o.frequency.exponentialRampToValueAtTime(body*.6,t+.03);
-    og.gain.setValueAtTime(v*.35,t);og.gain.exponentialRampToValueAtTime(.0001,t+.035);o.connect(og);og.connect(out);o.start(t);o.stop(t+.045)};
-  const R=p=>Math.pow(p||1,.45);
-  const lib={
-    arc:(t,o)=>click(t,{f:2600*R(o.p),body:1100*R(o.p),v:.55}),
-    line:(t,o)=>click(t,{f:3000*R(o.p),body:1300*R(o.p),v:.5*(o.v||1)}),
-    end:(t)=>{for(let i=0;i<6;i++)click(t+i*.055,{f:3400-i*180,body:1500-i*80,v:.45*(1-i*.12)})},
-    tick:(t,o)=>click(t,{f:3600*(o.p||1),body:1700*(o.p||1),v:.42*(o.v||1),len:.016}),
-    page:(t)=>{click(t,{f:1800,body:700,v:.6,len:.03});click(t+.09,{f:2400,body:900,v:.32})},
-    on:(t)=>{[0,.08,.16].forEach((d,i)=>click(t+d,{f:2600+i*500,body:1200+i*250,v:.5}))}};
-  const gap={line:.07,arc:.06,tick:.04,end:1,page:.5,on:.3},next={};
-  /* em vez de cortar sons seguidos, espaça-os: nenhum ponto fica sem som */
-  const play=(n,o={})=>{if(!on||!lib[n]||!init())return;ctx.state==="suspended"&&ctx.resume();
-    const now=ctx.currentTime+.005,t=Math.max(now,next[n]||0);if(t-now>.5)return;next[n]=t+(gap[n]||.06);lib[n](t,o)};
-  const sync=()=>$$("[data-sound-toggle]").forEach(b=>{b.setAttribute("aria-pressed",String(on));b.setAttribute("aria-label",on?"Desativar som":"Ativar som")});
-  const set=v=>{on=v;try{localStorage.setItem("cmd_sound",v?"1":"0")}catch(e){}sync();if(v){init();ctx&&ctx.state==="suspended"&&ctx.resume();play("on")}};
-  document.addEventListener("click",e=>{const b=e.target.closest("[data-sound-toggle]");b&&(e.preventDefault(),set(!on))});
-  sync();return{play,set,get on(){return on}}})();
+/* Som removido a pedido. Mantém-se a API vazia para não partir chamadas existentes. */
+const S={play(){},set(){},on:false};
+try{localStorage.removeItem("cmd_sound")}catch(e){}
 window.cmdSound=S;
 const watchOn=(els,fn,cls="is-on")=>els.forEach((n,i)=>{let was=n.classList.contains(cls);new MutationObserver(()=>{const is=n.classList.contains(cls);is&&!was&&fn(i,n);was=is}).observe(n,{attributes:true,attributeFilter:["class"]})});
 
@@ -117,7 +89,13 @@ if(ci){const list=$("[data-cases-list]",ci),fl=$("[data-cases-filters]",ci),pv=$
         gsap.fromTo(el,{clipPath:"inset(100% 0% 0% 0%)"},{clipPath:"inset(0% 0% 0% 0%)",duration:.7,ease:"expo.out",onComplete:()=>{while(pi.children.length>1)pi.firstChild.remove()}});
         gsap.to(pv,{autoAlpha:1,scale:1,duration:.5,ease:"expo.out"})};
       list.addEventListener("pointermove",e=>{qx(e.clientX);qy(e.clientY);qr(Math.max(-8,Math.min(8,(e.clientX-lx)*.4)));lx=e.clientX;const r=e.target.closest(".cases-index_row");r&&show(r)});
-      list.addEventListener("pointerleave",()=>{cur=null;list.classList.remove("is-hovering");rows.forEach(o=>o.classList.remove("is-active"));gsap.to(pv,{autoAlpha:0,scale:.8,duration:.4,ease:"power2.out"})})}
+      let ly=-1;const hide=()=>{if(!cur&&!list.classList.contains("is-hovering"))return;cur=null;list.classList.remove("is-hovering");rows.forEach(o=>o.classList.remove("is-active"));gsap.to(pv,{autoAlpha:0,scale:.8,duration:.4,ease:"power2.out"})};
+      list.addEventListener("pointermove",e=>{ly=e.clientY},{passive:true});
+      list.addEventListener("pointerleave",hide);
+      /* Ao fazer scroll o rato não se mexe, por isso o pointerleave não dispara: confirmamos a cada frame de scroll se o ponteiro ainda está sobre a lista. */
+      const chk=()=>{if(!cur)return;const r=list.getBoundingClientRect();(ly<r.top||ly>r.bottom)&&hide()};
+      window.addEventListener("scroll",chk,{passive:true});window.cmdLenis&&cmdLenis.on&&cmdLenis.on("scroll",chk);
+      G&&ScrollTrigger.create({trigger:list,start:"top bottom",end:"bottom top",onLeave:hide,onLeaveBack:hide})}
     armWt();window.cmdLenis&&cmdLenis.resize();G&&ScrollTrigger.refresh()};
   if(native)build();
   else fetch("/casos").then(r=>r.text()).then(h=>{const d=new DOMParser().parseFromString(h,"text/html");
