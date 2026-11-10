@@ -127,6 +127,13 @@
 .team_img,.team-card_img,.med_img,.team-arc_item img,.espd_img,.esp_img,.gal_img,.case_img,.cpv_img,.nav_mega-img,.tpv img{filter:sepia(.1) saturate(.9) contrast(.97) brightness(1.01)}
 /* cursor absorvido pela seta (scale é independente do transform que o GSAP usa) */
 .cursor_component{transition:scale .55s cubic-bezier(.16,1,.3,1)}
-.cursor_component.is-absorbed{scale:0}
+.cursor_component.is-absorbed{scale:0!important}
 .next_link:hover .next_arrow{transform:none}
 .next_arrow.is-absorb{transform:scale(1.12)!important}
+.next_link:hover .next_arrow:not(.is-absorb){background:transparent!important;color:var(--_base-color---brand--tinta)!important;box-shadow:inset 0 0 0 1px rgba(106,68,49,.35)!important}
+/* Gaveta: compacta para caber sem scroll em ecrãs de portátil; abaixo disso, o scroll interno continua a funcionar */
+.book_body{padding-bottom:1.25rem!important}
+.cal_grid .choice span,.date_grid .cal_grid .choice span{min-height:2.4rem!important}
+.cal_head{margin-bottom:.6rem}.cal_week{margin-bottom:.25rem}.cal_legend{margin-top:.6rem}
+.book_panel{gap:1rem}
+.choice span{min-height:3.2rem}
