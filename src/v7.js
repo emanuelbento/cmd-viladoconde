@@ -14,6 +14,7 @@ const css=`
 [data-sig-tip]{fill:var(--_base-color---brand--coral,#ea6f4e);transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform .7s cubic-bezier(.34,1.56,.64,1)}
 [data-sig].is-complete [data-sig-tip]{transform:scale(1)}
 .curtain_mono{display:none!important}
+h1,h2,.heading-style-h1,.heading-style-h2,.heading-style-h3{text-wrap:balance}
 .curtain_cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 .next_arrow{flex:none;width:3.25rem;height:3.25rem;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(106,68,49,.18);color:var(--_base-color---brand--tinta,#2a1a13);transition:background-color .45s,color .45s,box-shadow .45s,transform .7s cubic-bezier(.16,1,.3,1)}
 .next_arrow svg{width:18px;height:18px}
@@ -62,6 +63,9 @@ const st=document.createElement("style");st.id="cmd-v7";st.textContent=css;docum
       for(let x=-20;x<=W+20;x+=18){const y=y0+A*Math.sin(x*.006+ph)*Math.sin(q*Math.PI*.5+i*.2);x===-20?cx.moveTo(x,y):cx.lineTo(x,y)}
       cx.stroke()}};
 })();
+
+/* imagens dentro da galeria em cascata carregam já: estão recortadas, o lazy load não as vê */
+$$("[data-cslider] img").forEach(i=>{i.loading="eager";i.decoding="async"});
 
 /* ---------- "Seguinte": seta explícita ---------- */
 $$(".next_link").forEach(a=>{if($(".next_arrow",a))return;const s=document.createElement("span");s.className="next_arrow";s.innerHTML=arrow;a.appendChild(s)});
