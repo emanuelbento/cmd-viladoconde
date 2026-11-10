@@ -5,7 +5,8 @@ Código de interação do site do Centro Médico e Dentário de Vila do Conde (W
 - `src/` código fonte
 - `dist/cmd.min.js` carregado em todas as páginas
 - `dist/gl.min.js` hero em WebGL da homepage
-- `audio/clicks.mp3` sons da interface
+- `dist/home.min.js` interações da homepage
+- `logos/` logos fictícios para pré-visualizar a secção de parceiros
 
 Servido por jsDelivr a partir de uma tag:
 

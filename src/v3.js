@@ -5,39 +5,35 @@ const FINE=matchMedia("(hover: hover) and (pointer: fine)").matches;
 G&&gsap.registerPlugin(...[ScrollTrigger,window.SplitText].filter(Boolean));
 const SC=[0,2,4,7,9,12,14,16],pit=i=>Math.pow(2,SC[i%8]/12);
 
-/* ---------- Som: desligado por defeito. Um só ficheiro com os cliques da roda de uma máquina de lavar,
-   tocados com pequenas variações de velocidade para nunca soarem iguais. ---------- */
-const S=(()=>{let ctx=null,out=null,buf=null,on=false,loading=null;
+/* ---------- Som: desligado por defeito. Cliques secos e curtos, sintetizados (sem ficheiros, sem eco):
+   um estalido de ruído filtrado com um "tic" tonal por baixo, como um mecanismo de roda dentada. ---------- */
+const S=(()=>{let ctx=null,out=null,noise=null,on=false;
   try{on=localStorage.getItem("cmd_sound")==="1"}catch(e){}
-  const URL_=(window.CMD_BASE||"")+"audio/clicks.mp3";
-  /* início e duração de cada clique no ficheiro */
-  const CL=[[0,.13],[.25,.13],[.5,.13],[.75,.13]],RUN=[1,.52];
   const init=()=>{if(ctx)return ctx;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;ctx=new AC;
-    const hp=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=140;
-    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=9500;
-    const comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=3;
-    out=ctx.createGain();out.gain.value=1;out.connect(hp);hp.connect(lp);lp.connect(comp);comp.connect(ctx.destination);load();return ctx};
-  const load=()=>loading||(loading=fetch(URL_).then(r=>r.arrayBuffer()).then(a=>new Promise((res,rej)=>ctx.decodeAudioData(a,res,rej))).then(b=>{buf=b}).catch(()=>{loading=null}));
-  const hit=(seg,t,{rate=1,v=.8}={})=>{if(!buf)return;const src=ctx.createBufferSource(),g=ctx.createGain();src.buffer=buf;
-    src.playbackRate.value=rate*(1+(Math.random()-.5)*.05);g.gain.value=v;src.connect(g);g.connect(out);src.start(t,seg[0],seg[1]/src.playbackRate.value)};
-  /* a escala de tons das linhas passa a ser uma variação curta de velocidade */
-  const R=p=>Math.pow(p||1,.32);
+    const comp=ctx.createDynamicsCompressor();comp.threshold.value=-10;comp.ratio.value=4;comp.attack.value=.001;comp.release.value=.05;
+    out=ctx.createGain();out.gain.value=.9;out.connect(comp);comp.connect(ctx.destination);
+    noise=ctx.createBuffer(1,Math.round(ctx.sampleRate*.05),ctx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);return ctx};
+  /* um clique: f = altura do estalido, v = volume, body = frequência do corpo tonal */
+  const click=(t,{f=3200,v=.5,body=1400,len=.022}={})=>{
+    const n=ctx.createBufferSource();n.buffer=noise;const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f;bp.Q.value=2.2;
+    const g=ctx.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+len);n.connect(bp);bp.connect(g);g.connect(out);n.start(t);n.stop(t+len+.01);
+    const o=ctx.createOscillator(),og=ctx.createGain();o.type="triangle";o.frequency.setValueAtTime(body,t);o.frequency.exponentialRampToValueAtTime(body*.6,t+.03);
+    og.gain.setValueAtTime(v*.35,t);og.gain.exponentialRampToValueAtTime(.0001,t+.035);o.connect(og);og.connect(out);o.start(t);o.stop(t+.045)};
+  const R=p=>Math.pow(p||1,.45);
   const lib={
-    arc:(t,o)=>hit(CL[2],t,{rate:R(o.p)*.95,v:.85}),
-    line:(t,o)=>hit(CL[1],t,{rate:R(o.p),v:.8*(o.v||1)}),
-    end:(t)=>hit(RUN,t,{rate:1,v:.7}),
-    tick:(t,o)=>hit(CL[0],t,{rate:(o.p||1)*1.02,v:.6*(o.v||1)}),
-    page:(t)=>{hit(CL[3],t,{rate:.82,v:.9});hit(CL[0],t+.11,{rate:.9,v:.45})},
-    on:(t)=>{hit(CL[0],t,{v:.8});hit(CL[1],t+.09,{rate:1.08,v:.7});hit(CL[2],t+.18,{rate:1.16,v:.6})}};
-  const gap={line:.09,arc:.07,tick:.045,end:1,page:.5,on:.3},next={};
+    arc:(t,o)=>click(t,{f:2600*R(o.p),body:1100*R(o.p),v:.55}),
+    line:(t,o)=>click(t,{f:3000*R(o.p),body:1300*R(o.p),v:.5*(o.v||1)}),
+    end:(t)=>{for(let i=0;i<6;i++)click(t+i*.055,{f:3400-i*180,body:1500-i*80,v:.45*(1-i*.12)})},
+    tick:(t,o)=>click(t,{f:3600*(o.p||1),body:1700*(o.p||1),v:.42*(o.v||1),len:.016}),
+    page:(t)=>{click(t,{f:1800,body:700,v:.6,len:.03});click(t+.09,{f:2400,body:900,v:.32})},
+    on:(t)=>{[0,.08,.16].forEach((d,i)=>click(t+d,{f:2600+i*500,body:1200+i*250,v:.5}))}};
+  const gap={line:.07,arc:.06,tick:.04,end:1,page:.5,on:.3},next={};
   /* em vez de cortar sons seguidos, espaça-os: nenhum ponto fica sem som */
-  const play=(n,o={})=>{if(!on||!lib[n]||!init())return;ctx.state==="suspended"&&ctx.resume();if(!buf){load().then(()=>n==="on"&&play(n,o));return}
-    const now=ctx.currentTime+.005,t=Math.max(now,next[n]||0);if(t-now>.5)return;next[n]=t+(gap[n]||.08);lib[n](t,o)};
+  const play=(n,o={})=>{if(!on||!lib[n]||!init())return;ctx.state==="suspended"&&ctx.resume();
+    const now=ctx.currentTime+.005,t=Math.max(now,next[n]||0);if(t-now>.5)return;next[n]=t+(gap[n]||.06);lib[n](t,o)};
   const sync=()=>$$("[data-sound-toggle]").forEach(b=>{b.setAttribute("aria-pressed",String(on));b.setAttribute("aria-label",on?"Desativar som":"Ativar som")});
   const set=v=>{on=v;try{localStorage.setItem("cmd_sound",v?"1":"0")}catch(e){}sync();if(v){init();ctx&&ctx.state==="suspended"&&ctx.resume();play("on")}};
   document.addEventListener("click",e=>{const b=e.target.closest("[data-sound-toggle]");b&&(e.preventDefault(),set(!on))});
-  /* com o som ligado, o ficheiro carrega à primeira interação */
-  on&&addEventListener("pointerdown",()=>init(),{once:true,passive:true});
   sync();return{play,set,get on(){return on}}})();
 window.cmdSound=S;
 const watchOn=(els,fn,cls="is-on")=>els.forEach((n,i)=>{let was=n.classList.contains(cls);new MutationObserver(()=>{const is=n.classList.contains(cls);is&&!was&&fn(i,n);was=is}).observe(n,{attributes:true,attributeFilter:["class"]})});
