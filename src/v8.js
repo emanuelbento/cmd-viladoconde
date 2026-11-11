@@ -140,3 +140,28 @@ const set=i=>toc.forEach(b=>{b.dataset.toc===String(i)?b.setAttribute('aria-curr
 toc.forEach(b=>b.addEventListener('click',e=>{const s=secs[+b.dataset.toc];if(!s)return;e.preventDefault();window.cmdLenis?cmdLenis.scrollTo(s,{offset:-110,duration:1.2}):s.scrollIntoView({behavior:'smooth'});history.replaceState(null,'','#'+s.id)}));
 const run=()=>{if(window.ScrollTrigger)secs.forEach(s=>ScrollTrigger.create({trigger:s,start:'top 22%',end:'bottom 22%',onToggle:x=>{x.isActive&&set(s.dataset.sec)}}));else{const io=new IntersectionObserver(es=>es.forEach(en=>{en.isIntersecting&&set(en.target.dataset.sec)}),{rootMargin:'-22% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}};
 document.readyState==='complete'?run():addEventListener('load',run)})();
+/* consentimento: o Analytics só carrega depois de "Aceitar todos". Sem escolha ou com "Só essenciais" não há pedidos à Google. */
+(()=>{const K="cmd_consent",T="cmd_consent_ts",MAX=180*864e5,ID=(window.CMD_GA_ID||"").trim();
+const get=()=>{try{return localStorage.getItem(K)}catch(e){return null}};
+try{const t=+localStorage.getItem(T)||0;if(get()&&(!t||Date.now()-t>MAX)){localStorage.removeItem(K);localStorage.removeItem(T)}}catch(e){}
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=window.gtag||gtag;
+gtag("consent","default",{analytics_storage:"denied",ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",functionality_storage:"granted",security_storage:"granted",wait_for_update:500});
+let loaded=!1;const load=()=>{if(loaded||!ID)return;loaded=!0;window["ga-disable-"+ID]=!1;
+gtag("consent","update",{analytics_storage:"granted"});gtag("js",new Date);gtag("config",ID,{anonymize_ip:!0,allow_google_signals:!1,allow_ad_personalization_signals:!1});
+const s=document.createElement("script");s.async=!0;s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(ID);document.head.appendChild(s)};
+const wipe=()=>{if(ID)window["ga-disable-"+ID]=!0;gtag("consent","update",{analytics_storage:"denied"});
+const host=location.hostname.split(".");document.cookie.split(";").map(c=>c.split("=")[0].trim()).filter(n=>/^_ga|^_gid|^_gat/.test(n)).forEach(n=>{for(let i=0;i<host.length-1;i++){const d=host.slice(i).join(".");document.cookie=n+"=;Max-Age=0;path=/;domain=."+d;document.cookie=n+"=;Max-Age=0;path=/;domain="+d}document.cookie=n+"=;Max-Age=0;path=/"})};
+get()==="todos"?load():wipe();
+document.addEventListener("click",e=>{const b=e.target.closest("[data-cookie-choice]");if(!b)return;try{localStorage.setItem(T,String(Date.now()))}catch(e){}b.dataset.cookieChoice==="todos"?load():wipe()},!0);
+window.cmdConsent={get,load,wipe}})();
+/* dados estruturados nas páginas interiores: breadcrumb, perfil do profissional, página da especialidade */
+(()=>{const o=location.origin,clinic={"@id":o+"/#clinica"},add=j=>{const s=document.createElement("script");s.type="application/ld+json";s.textContent=JSON.stringify(j);document.head.appendChild(s)};
+const run=()=>{const g=[],h1=(document.querySelector("h1")?.textContent||"").trim(),bc=document.querySelector("nav.breadcrumb");
+if(bc){const items=[];bc.querySelectorAll("a,span:not([aria-hidden])").forEach(n=>{const name=(n.textContent||"").trim();if(!name)return;items.push({"@type":"ListItem",position:items.length+1,name:n.tagName==="A"?name:(h1||name),item:n.tagName==="A"?new URL(n.getAttribute("href"),o).href:location.href.split("#")[0]})});items.length>1&&g.push({"@type":"BreadcrumbList",itemListElement:items})}
+const med=document.querySelector("[data-med-name]");if(med){const img=document.querySelector(".med_img"),esp=(document.querySelector("[data-med-esp]")?.textContent||"").trim();
+const facts={};document.querySelectorAll(".med_fact").forEach(f=>{const k=(f.querySelector(".med_fact-key")?.textContent||"").trim().toLowerCase(),v=(f.textContent||"").replace(f.querySelector(".med_fact-key")?.textContent||"","").trim();k&&v&&(facts[k]=v)});
+const p={"@type":"Physician","@id":location.href.split("#")[0]+"#profissional",name:med.textContent.trim(),url:location.href.split("#")[0],medicalSpecialty:esp||void 0,jobTitle:facts["função"]||void 0,image:img?.currentSrc||img?.src||void 0,worksFor:clinic,address:{"@type":"PostalAddress",streetAddress:"Rua dos Benguiados, 225",postalCode:"4480-794",addressLocality:"Vila do Conde",addressCountry:"PT"},telephone:"+351252616388"};
+const ced=Object.keys(facts).find(k=>/c[eé]dula/.test(k));ced&&(p.identifier={"@type":"PropertyValue",name:"Cédula profissional",value:facts[ced]});g.push(p)}
+if(/^\/especialidades\/[^/]+/.test(location.pathname)&&h1){g.push({"@type":"MedicalWebPage","@id":location.href.split("#")[0]+"#pagina",url:location.href.split("#")[0],name:document.title,description:document.querySelector('meta[name="description"]')?.content||void 0,specialty:h1,isPartOf:{"@id":o+"/#website"},publisher:clinic,inLanguage:"pt-PT"})}
+g.length&&add({"@context":"https://schema.org","@graph":g})};
+document.readyState==="complete"?setTimeout(run,300):addEventListener("load",()=>setTimeout(run,300))})();
