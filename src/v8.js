@@ -48,12 +48,24 @@ $$("[data-book-drawer], .book_body").forEach(el=>el.setAttribute("data-lenis-pre
     ar.addEventListener("pointerenter",on);ar.addEventListener("pointerleave",off);const l=ar.closest("a");l&&l.addEventListener("pointerleave",off)});
   addEventListener("pagehide",()=>cur&&cur.classList.remove("is-absorbed"))})();
 
-/* ---------- Percursos: a linha desenha-se com o scroll e acende cada etapa ---------- */
-$$("[data-pex2]").forEach(sec=>{const fill=$(".pex2_fill",sec),steps=$$(".pex2_step",sec),list=$(".pex2_steps",sec);if(!list)return;
+/* ---------- Percursos: a linha enche com o scroll e cada ponto acende quando a linha lá chega ----------
+   A: ao entrar, a linha está vazia e só a primeira etapa acende.
+   B: a linha enche em scrub; uma etapa acende quando o seu ponto passa o centro do ecrã (é aí que a linha o alcança).
+   C: no fim, as etapas todas acesas. Os botões não dependem do scroll. */
+$$("[data-pex2]").forEach(sec=>{const fill=$(".pex2_fill",sec),track=$(".pex2_track",sec),steps=$$(".pex2_step",sec),list=$(".pex2_steps",sec);if(!list||!steps.length)return;
+  const dotY=s=>{const b=parseFloat(getComputedStyle(s,"::before").top)||7,h=parseFloat(getComputedStyle(s,"::before").height)||14;return s.offsetTop+b+h/2};
+  let ys=[];
+  const measure=()=>{ys=steps.map(dotY);if(track){track.style.top=ys[0]+"px";track.style.bottom=Math.max(0,list.offsetHeight-ys[ys.length-1])+"px"}};
+  measure();
   if(!A||!window.ScrollTrigger){fill&&(fill.style.transform="none");steps.forEach(s=>s.classList.add("is-on"));return}
-  gsap.to(fill,{scaleY:1,ease:"none",scrollTrigger:{trigger:list,start:"top 70%",end:"bottom 55%",scrub:.6}});
-  steps.forEach(s=>ScrollTrigger.create({trigger:s,start:"top 68%",onEnter:()=>s.classList.add("is-on"),onLeaveBack:()=>s.classList.remove("is-on")}));
-  gsap.from(steps,{y:30,autoAlpha:0,duration:1,stagger:.12,ease:"expo.out",scrollTrigger:{trigger:list,start:"top 80%",once:true}})});
+  const span=()=>Math.max(1,ys[ys.length-1]-ys[0]);
+  const light=p=>{const reach=ys[0]+p*span();steps.forEach((s,i)=>s.classList.toggle("is-on",i===0?entered:ys[i]<=reach+1))};
+  let entered=false,prog=0;
+  gsap.set(fill,{scaleY:0,transformOrigin:"top"});
+  ScrollTrigger.create({trigger:list,start:"top 85%",onEnter:()=>{entered=true;light(prog)},onLeaveBack:()=>{entered=false;light(prog)}});
+  gsap.to(fill,{scaleY:1,ease:"none",onUpdate(){prog=this.progress();light(prog)},scrollTrigger:{trigger:list,start:()=>`top+=${ys[0]} center`,end:()=>`top+=${ys[ys.length-1]} center`,scrub:.4,onRefreshInit:measure}});
+  gsap.from(steps,{y:24,autoAlpha:0,duration:1,stagger:.12,ease:"expo.out",scrollTrigger:{trigger:list,start:"top 85%",once:true}});
+  let rt,w0=list.offsetWidth;new ResizeObserver(()=>{if(list.offsetWidth===w0)return;w0=list.offsetWidth;clearTimeout(rt);rt=setTimeout(()=>{measure();ScrollTrigger.refresh()},150)}).observe(list)});
 
 /* ---------- Avaliações: uma de cada vez, linha a linha (base Osmo, com arrastar) ---------- */
 $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-list]",wrap);if(!list)return;
@@ -100,4 +112,9 @@ $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-lis
     n.insertAdjacentHTML("afterbegin",`<img class="cpv_img" src="${a}" alt="">${ba?`<img class="cpv_img" src="${b}" alt="">`:""}`)}))).observe(pi,{childList:true})})();
   /* CMS links: base + slug */
   document.querySelectorAll("a[data-href-base][data-slug]").forEach(a=>{const sl=a.getAttribute("data-slug");sl&&a.setAttribute("href",a.getAttribute("data-href-base")+sl)});
+  /* ScrollTrigger: os pins da homepage nascem depois destes triggers. Reordenar e recalcular quando tudo carregou,
+     senão tudo o que está abaixo de um pin dispara cedo demais (ex.: os pontos dos Percursos já acesos). */
+  if(window.ScrollTrigger){const fix=()=>{ScrollTrigger.sort();ScrollTrigger.refresh()};
+    document.readyState==="complete"?setTimeout(fix,200):addEventListener("load",()=>setTimeout(fix,200),{once:true});
+    document.fonts&&document.fonts.ready.then(()=>setTimeout(fix,400))}
 })();

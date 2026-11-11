@@ -34,8 +34,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)
 
 /* ---------- Marcação: calendário mensal (3 meses, domingo e feriados fechados, sábado só manhã) ---------- */
 const box=$("[data-opt-date]");
-if(box){const HOL=["2026-12-01","2026-12-08","2026-12-25","2027-01-01","2027-03-26","2027-04-25","2027-05-01","2027-05-27","2027-06-10","2027-06-24","2027-08-15","2027-10-05","2027-11-01","2027-12-01","2027-12-08","2027-12-25"],
-  WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],MO=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
+if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],MO=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
   K=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`,
   ico=d=>`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   let mo=0,sel=null,busy=false;
@@ -43,7 +42,7 @@ if(box){const HOL=["2026-12-01","2026-12-08","2026-12-25","2027-01-01","2027-03-
   const render=(dir=0)=>{busy=true;const now=new Date;now.setHours(12,0,0,0);const min=new Date(now);min.setDate(min.getDate()+1);mo=Math.max(0,Math.min(2,mo));
     const b0=new Date(now.getFullYear(),now.getMonth()+mo,1,12),y=b0.getFullYear(),m=b0.getMonth(),nd=new Date(y,m+1,0).getDate(),lead=(b0.getDay()+6)%7;let cs="";
     for(let i=0;i<lead;i++)cs+='<span class="cal_pad" aria-hidden="true"></span>';
-    for(let d=1;d<=nd;d++){const dt=new Date(y,m,d,12),k=K(dt),w=dt.getDay(),cl=w===0||HOL.includes(k),dis=cl||dt<min,lab=`${WD[w]}, ${d} de ${MO[m]}${cl?", encerrado":w===6?", só de manhã":""}`;
+    for(let d=1;d<=nd;d++){const dt=new Date(y,m,d,12),k=K(dt),w=dt.getDay(),cl=w===0||window.cmdHol.closed(k),dis=cl||dt<min,lab=`${WD[w]}, ${d} de ${MO[m]}${cl?", encerrado":w===6?", só de manhã":""}`;
       cs+=`<label class="choice${cl?" is-closed":""}${K(now)===k?" is-today":""}"><input type="radio" name="Dia" data-name="Dia" id="d-${k}" value="${k}" aria-label="${lab}"${sel===k?" checked":""}${dis?" disabled":""}><span><b>${d}</b>${w===6&&!dis?"<i></i>":""}</span></label>`}
     box.innerHTML=`<div class="cal_head"><div class="cal_month" aria-live="polite">${MO[m]} ${y}</div><div class="cal_navs"><button type="button" class="cal_nav" data-cal="-1" aria-label="Mês anterior"${mo<=0?" disabled":""}>${ico("M19 12H5M11 6l-6 6 6 6")}</button><button type="button" class="cal_nav" data-cal="1" aria-label="Mês seguinte"${mo>=2?" disabled":""}>${ico("M5 12h14M13 6l6 6-6 6")}</button></div></div><div class="cal_week" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="cal_grid" role="radiogroup" aria-label="Dia da consulta">${cs}</div><div class="cal_legend"><span><i></i>Sábado: só de manhã</span><span><i class="is-closed"></i>Domingo e feriados: encerrado</span></div>`;
     sat();dir&&A&&gsap.from($(".cal_grid",box),{x:24*dir,autoAlpha:0,duration:.5,ease:"expo.out",clearProps:"all"});
@@ -51,7 +50,8 @@ if(box){const HOL=["2026-12-01","2026-12-08","2026-12-25","2027-01-01","2027-03-
   new MutationObserver(()=>{!busy&&!$(".cal_head",box)&&render()}).observe(box,{childList:true});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-cal]");if(!b||b.disabled)return;e.preventDefault();mo+=+b.dataset.cal;render(+b.dataset.cal)});
   box.addEventListener("change",e=>{e.target.name==="Dia"&&(sel=e.target.value,sat())});
-  box.children.length&&render()}
+  box.children.length&&render();
+  window.cmdHol.onUpdate(()=>{$(".cal_head",box)&&render()})}
 
 /* ---------- Títulos: o peso cresce à volta do cursor, como na hero ---------- */
 const armWt=()=>{if(!FINE||!A||!window.SplitText||!window.cmdWt)return;
