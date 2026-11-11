@@ -42,11 +42,24 @@ if(holder){const grid=$(".team_grid",holder),fl=$("[data-filter=team]")||holder.
   const place=(b,anim)=>{const p={x:b.offsetLeft,w:b.offsetWidth};A&&anim?gsap.to(ind,{x:p.x,width:p.w,duration:.55,ease:"expo.out"}):G?gsap.set(ind,{x:p.x,width:p.w}):Object.assign(ind.style,{transform:`translateX(${p.x}px)`,width:p.w+"px"})};
   place(vb[0]);document.fonts&&document.fonts.ready.then(()=>place(vb.find(b=>b.getAttribute("aria-pressed")==="true")));
   addEventListener("resize",()=>place(vb.find(b=>b.getAttribute("aria-pressed")==="true")));
-  const go=b=>{const v=b.dataset.tv;if(holder.dataset.teamView===v)return;snd("tick");place(b,true);vb.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
-    const cards=$$(".team_card",grid);
-    if(A&&window.Flip){const s=Flip.getState(cards);holder.dataset.teamView=v;Flip.from(s,{duration:.8,ease:"expo.inOut",absolute:false,onComplete:refresh})}
-    else if(A){gsap.to(grid,{autoAlpha:0,duration:.2,onComplete:()=>{holder.dataset.teamView=v;gsap.fromTo(grid.children,{y:20,autoAlpha:0},{y:0,autoAlpha:1,duration:.7,stagger:.03,ease:"expo.out",clearProps:"all"});gsap.set(grid,{autoAlpha:1});refresh()}})}
-    else{holder.dataset.teamView=v;refresh()}};
+  let tl=null;const go=b=>{const v=b.dataset.tv;if(holder.dataset.teamView===v)return;snd("tick");place(b,true);vb.forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    /* Troca grelha/lista: as fotografias fecham por máscara (ou as linhas saem), troca-se o layout,
+       e o novo estado entra por máscara e por linhas. Nada é escalado, por isso nada deforma. */
+    if(!A){holder.dataset.teamView=v;refresh();return}
+    const vis=()=>[...grid.children].filter(i=>i.style.display!=="none");
+    tl&&tl.progress(1).kill();
+    const items=vis(),photos=items.map(i=>$(".team_photo",i)).filter(Boolean),metas=items.map(i=>$$(".team_meta,.team_esp",i)).flat();
+    tl=gsap.timeline({onComplete:()=>{tl=null;refresh()}});
+    if(v==="list"){
+      tl.to(photos,{clipPath:"inset(0% 0% 100% 0% round 18px)",duration:.45,stagger:.035,ease:"expo.in"},0)
+        .to(metas,{autoAlpha:0,y:-8,duration:.25,stagger:.02,ease:"power2.in"},0)
+        .add(()=>{holder.dataset.teamView=v;gsap.set([...photos,...metas],{clearProps:"clipPath,opacity,visibility,transform"})})
+        .fromTo(items,{y:18,autoAlpha:0},{y:0,autoAlpha:1,duration:.7,stagger:.045,ease:"expo.out",clearProps:"transform,opacity,visibility",immediateRender:false})}
+    else{
+      tl.to(items,{autoAlpha:0,y:-10,duration:.25,stagger:.02,ease:"power2.in"},0)
+        .add(()=>{holder.dataset.teamView=v;gsap.set(items,{clearProps:"opacity,visibility,transform"});gsap.set(photos,{clipPath:"inset(100% 0% 0% 0% round 18px)"});gsap.set(metas,{autoAlpha:0,y:12})})
+        .to(photos,{clipPath:"inset(0% 0% 0% 0% round 18px)",duration:.9,stagger:.06,ease:"expo.out",clearProps:"clipPath"})
+        .to(metas,{autoAlpha:1,y:0,duration:.6,stagger:.03,ease:"expo.out",clearProps:"opacity,visibility,transform"},"<.25")}};
   vb.forEach(b=>b.addEventListener("click",()=>go(b)));
   /* pré-visualização na lista */
   if(FINE&&A&&grid){const pv=document.createElement("div");pv.className="tpv";pv.setAttribute("aria-hidden","true");document.body.appendChild(pv);
