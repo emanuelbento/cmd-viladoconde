@@ -45,3 +45,22 @@
   .book_panel .choice_grid .choice span{padding-top:.4rem;padding-bottom:.4rem}
   .book_panel{gap:.55rem}
 }
+/* Navbar escura sobre secções escuras */
+.nav_component::before{transition:opacity .5s,background-color .5s,box-shadow .5s}
+.nav_component.is-dark::before{background:rgba(42,26,19,.82);box-shadow:0 1px 0 rgba(243,234,228,.12)}
+.nav_component.is-dark .nav_link,.nav_component.is-dark .nav_link-text,.nav_component.is-dark .nav_status,.nav_component.is-dark .status-pill,.nav_component.is-dark [data-menu-btn]{color:#F3EAE4;transition:color .5s}
+.nav_component.is-dark .status-pill_sub{color:rgba(243,234,228,.6)}
+.nav_component.is-dark .status-pill:not(.is-open) .status-pill_dot{background-color:#F3EAE4}
+.nav_component .nav_link,.nav_component .status-pill{transition:color .5s}
+/* Rodapé: ícones das redes sem círculo, centrados, hover pela cor */
+.footer_social{margin-left:-.75rem;gap:0}
+.footer_social-link{width:2.75rem;height:2.75rem;border:0!important;background:transparent!important;color:var(--_color-scheme---text--secondary)}
+.footer_social-link:hover,.footer_social-link:focus-visible{color:var(--_base-color---brand--coral)}
+.footer_social-link .w-embed{display:flex;align-items:center;justify-content:center;line-height:0}
+.footer_social-link svg{display:block;width:20px;height:20px;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.footer_social-link:hover svg{transform:translateY(-2px)}
+/* Ligações externas com seta */
+a[data-external]::after{content:"↗";display:inline-block;margin-left:.3em;font-size:.85em;transition:transform .3s}
+a[data-external]:hover::after{transform:translate(2px,-2px)}
+/* Contactos: nota da chamada mais discreta */
+.visit_note{margin-top:0;font-weight:400}

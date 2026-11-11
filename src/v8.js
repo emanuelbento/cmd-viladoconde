@@ -118,3 +118,19 @@ $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-lis
     document.readyState==="complete"?setTimeout(fix,200):addEventListener("load",()=>setTimeout(fix,200),{once:true});
     document.fonts&&document.fonts.ready.then(()=>setTimeout(fix,400))}
 })();
+
+/* Navbar sobre fundos escuros: troca para a versão escura quando a secção por baixo é escura */
+(()=>{
+  const nav=document.querySelector("[data-nav]");if(!nav)return;
+  const lum=c=>{const m=c.match(/[\d.]+/g);if(!m)return null;const a=m[3]===undefined?1:+m[3];if(a<.5)return null;
+    const [r,g,b]=m.slice(0,3).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+  const bgAt=(x,y)=>{const els=document.elementsFromPoint(x,y);for(const e of els){if(nav.contains(e))continue;let n=e;
+      while(n&&n!==document.documentElement){const l=lum(getComputedStyle(n).backgroundColor);if(l!==null)return l;n=n.parentElement}return 1}return 1};
+  let raf=0;
+  const check=()=>{raf=0;if(nav.classList.contains("is-open")){nav.classList.remove("is-dark");return}
+    const y=nav.getBoundingClientRect().bottom-2;const l=Math.min(bgAt(innerWidth*.25,y),bgAt(innerWidth*.75,y));
+    nav.classList.toggle("is-dark",l<.18)};
+  const q=()=>{raf||(raf=requestAnimationFrame(check))};
+  addEventListener("scroll",q,{passive:true});addEventListener("resize",q);addEventListener("load",q);
+  new MutationObserver(q).observe(nav,{attributes:true,attributeFilter:["class"]});q();
+})();
