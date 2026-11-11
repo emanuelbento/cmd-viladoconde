@@ -169,3 +169,5 @@ document.readyState==="complete"?setTimeout(run,300):addEventListener("load",()=
 (()=>{const m=document.querySelector("main");if(m){m.id||(m.id="conteudo");m.hasAttribute("tabindex")||m.setAttribute("tabindex","-1");const a=document.createElement("a");a.className="skip-link";a.href="#"+m.id;a.textContent="Saltar para o conteúdo";document.body.prepend(a)}
 const fix=()=>document.querySelectorAll("div[aria-label]:not([role]),p[aria-label]:not([role]),span[aria-label]:not([role])").forEach(el=>el.setAttribute("role",el.classList.contains("rv2_stars")?"img":"group"));
 fix();new MutationObserver(fix).observe(document.body,{subtree:!0,attributes:!0,attributeFilter:["aria-label"]})})();
+/* comparador antes e depois: valor do slider para leitores de ecrã */
+(()=>{document.querySelectorAll("[data-ba]").forEach(b=>{const s=()=>{const v=Math.round(parseFloat(b.style.getPropertyValue("--pos"))||0);b.setAttribute("aria-valuemin","0");b.setAttribute("aria-valuemax","100");b.setAttribute("aria-valuenow",String(v));b.setAttribute("aria-valuetext",v+"% depois")};s();new MutationObserver(s).observe(b,{attributes:!0,attributeFilter:["style"]})})})();
