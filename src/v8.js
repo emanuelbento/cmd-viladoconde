@@ -171,3 +171,6 @@ const fix=()=>document.querySelectorAll("div[aria-label]:not([role]),p[aria-labe
 fix();new MutationObserver(fix).observe(document.body,{subtree:!0,attributes:!0,attributeFilter:["aria-label"]})})();
 /* comparador antes e depois: valor do slider para leitores de ecrã */
 (()=>{document.querySelectorAll("[data-ba]").forEach(b=>{const s=()=>{const v=Math.round(parseFloat(b.style.getPropertyValue("--pos"))||0);b.setAttribute("aria-valuemin","0");b.setAttribute("aria-valuemax","100");b.setAttribute("aria-valuenow",String(v));b.setAttribute("aria-valuetext",v+"% depois")};s();new MutationObserver(s).observe(b,{attributes:!0,attributeFilter:["style"]})})})();
+/* selo do Webflow (só até haver site plan): fica dentro de uma zona com nome, sem o esconder */
+(()=>{const wrap=()=>{const b=document.querySelector("body > .w-webflow-badge");if(!b)return!1;let r=document.getElementById("wf-badge-region");if(!r){r=document.createElement("div");r.id="wf-badge-region";r.setAttribute("role","region");r.setAttribute("aria-label","Feito em Webflow");document.body.appendChild(r)}r.appendChild(b);return!0};
+let n=0;const t=setInterval(()=>{(wrap()||++n>40)&&clearInterval(t)},250);new MutationObserver(wrap).observe(document.body,{childList:!0})})();
