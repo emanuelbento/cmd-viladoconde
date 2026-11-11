@@ -149,3 +149,10 @@
 /* drawer step 3 fit */
 .book_panel .book_fields{row-gap:1rem!important}
 .book_panel textarea{min-height:0!important;height:5rem!important}
+/* next link mobile: keep arrow inside viewport */
+@media (max-width:767px){
+.next_link{gap:.75rem!important}
+.next_link .text-eyebrow{flex:0 0 5.5rem!important;min-width:0}
+.next_link-title{flex:1 1 auto!important;min-width:0!important;overflow-wrap:anywhere}
+.next_arrow{flex:0 0 auto!important}
+}
