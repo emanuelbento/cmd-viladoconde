@@ -49,16 +49,22 @@ if(holder){const grid=$(".team_grid",holder),fl=$("[data-filter=team]")||holder.
     const vis=()=>[...grid.children].filter(i=>i.style.display!=="none");
     tl&&tl.progress(1).kill();
     const items=vis(),photos=items.map(i=>$(".team_photo",i)).filter(Boolean),metas=items.map(i=>$$(".team_meta,.team_esp",i)).flat();
+    gsap.killTweensOf(grid);gsap.set(grid,{clearProps:"height,overflow"});
+    const h0=grid.offsetHeight,R=" round 18px";
+    const swap=()=>{holder.dataset.teamView=v;gsap.set(grid,{height:"auto"});const h1=grid.offsetHeight;gsap.fromTo(grid,{height:h0,overflow:"hidden"},{height:h1,duration:.7,ease:"expo.inOut",clearProps:"height,overflow"})};
     tl=gsap.timeline({onComplete:()=>{tl=null;refresh()}});
     if(v==="list"){
-      tl.to(photos,{clipPath:"inset(0% 0% 100% 0% round 18px)",duration:.45,stagger:.035,ease:"expo.in"},0)
-        .to(metas,{autoAlpha:0,y:-8,duration:.25,stagger:.02,ease:"power2.in"},0)
-        .add(()=>{holder.dataset.teamView=v;gsap.set([...photos,...metas],{clearProps:"clipPath,opacity,visibility,transform"})})
-        .fromTo(items,{y:18,autoAlpha:0},{y:0,autoAlpha:1,duration:.7,stagger:.045,ease:"expo.out",clearProps:"transform,opacity,visibility",immediateRender:false})}
+      /* grelha para lista: fotografias e textos saem, a altura desliza, cada linha entra numa varredura da esquerda */
+      tl.to(photos,{clipPath:"inset(0% 0% 100% 0%"+R+")",duration:.5,stagger:.04,ease:"expo.inOut"},0)
+        .to(metas,{autoAlpha:0,duration:.25,stagger:.02,ease:"power1.in"},0)
+        .add(()=>{gsap.set(items,{clipPath:"inset(0% 100% 0% 0%)"});swap();gsap.set([...photos,...metas],{clearProps:"clipPath,opacity,visibility,transform"})})
+        .to(items,{clipPath:"inset(0% 0% 0% 0%)",duration:.9,stagger:.07,ease:"expo.out",clearProps:"clipPath"})
+        .fromTo(items.map(i=>$(".team_meta",i)).filter(Boolean),{x:24},{x:0,duration:1,stagger:.07,ease:"expo.out",clearProps:"transform",immediateRender:false},"<")}
     else{
-      tl.to(items,{autoAlpha:0,y:-10,duration:.25,stagger:.02,ease:"power2.in"},0)
-        .add(()=>{holder.dataset.teamView=v;gsap.set(items,{clearProps:"opacity,visibility,transform"});gsap.set(photos,{clipPath:"inset(100% 0% 0% 0% round 18px)"});gsap.set(metas,{autoAlpha:0,y:12})})
-        .to(photos,{clipPath:"inset(0% 0% 0% 0% round 18px)",duration:.9,stagger:.06,ease:"expo.out",clearProps:"clipPath"})
+      /* lista para grelha: cada linha sai numa varredura para a direita, a altura desliza, as fotografias abrem de baixo */
+      tl.to(items,{clipPath:"inset(0% 0% 0% 100%)",duration:.45,stagger:.04,ease:"expo.in"},0)
+        .add(()=>{gsap.set(items,{clearProps:"clipPath"});gsap.set(photos,{clipPath:"inset(100% 0% 0% 0%"+R+")"});gsap.set(metas,{autoAlpha:0,y:12});swap()})
+        .to(photos,{clipPath:"inset(0% 0% 0% 0%"+R+")",duration:.9,stagger:.06,ease:"expo.out",clearProps:"clipPath"})
         .to(metas,{autoAlpha:1,y:0,duration:.6,stagger:.03,ease:"expo.out",clearProps:"opacity,visibility,transform"},"<.25")}};
   vb.forEach(b=>b.addEventListener("click",()=>go(b)));
   /* pré-visualização na lista */
