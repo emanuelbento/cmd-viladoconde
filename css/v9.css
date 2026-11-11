@@ -41,3 +41,7 @@
 @media (max-width:767px){
   .book_panel:has(.date_grid)>.book_title{display:none}
 }
+@media (max-height:700px){
+  .book_panel .choice_grid .choice span{padding-top:.4rem;padding-bottom:.4rem}
+  .book_panel{gap:.55rem}
+}
