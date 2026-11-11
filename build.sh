@@ -19,5 +19,5 @@ rm dist/_*.js
 node -e "new Function(require('fs').readFileSync('dist/cmd.min.js','utf8'));new Function(require('fs').readFileSync('dist/gl.min.js','utf8'));console.log('sintaxe ok')"
 wc -c dist/*.js
 # CSS que vive no Global Styles do Designer (colar no embed cmd-v8)
-cat css/v6.css css/v7.css css/v8.css | tr '\n' ' ' | sed 's#/\*[^*]*\*\+\([^/*][^*]*\*\+\)*/##g; s/  */ /g' > dist/site.css
+cat css/v6.css css/v7.css css/v8.css css/v9.css | tr '\n' ' ' | sed 's#/\*[^*]*\*\+\([^/*][^*]*\*\+\)*/##g; s/  */ /g' > dist/site.css
 wc -c dist/site.css

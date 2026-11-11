@@ -1,0 +1,43 @@
+/* v9 · Gaveta de marcação: passo 2 sem scroll em portáteis, mais curto no telemóvel */
+.book_panel{gap:.85rem}
+.book_panel .choice_grid .choice span{min-height:0;padding-top:.6rem;padding-bottom:.6rem;gap:.1rem;line-height:1.25}
+.cal_grid .choice span,.date_grid .cal_grid .choice span{min-height:2.1rem!important;padding-top:0;padding-bottom:0}
+.cal_head{margin-bottom:.35rem}
+.cal_month{font-size:1.4rem}
+.cal_nav{width:2.25rem;height:2.25rem}
+.cal_legend{margin-top:.45rem}
+.book_panel .field_hint{font-size:.8125rem;line-height:1.45}
+@media (min-width:768px){
+  .book_panel .choice_grid .choice span{flex-direction:row;align-items:baseline;justify-content:space-between;gap:.75rem;padding-top:.7rem;padding-bottom:.7rem}
+  .book_panel .choice_grid .choice span>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media (max-height:860px){
+  .book_title{font-size:1.75rem;margin-top:0}
+  .cal_grid .choice span,.date_grid .cal_grid .choice span{min-height:1.95rem!important}
+  .cal_grid{row-gap:.25rem!important}
+  .book_body{padding-bottom:.6rem!important}
+}
+@media (max-height:760px){
+  .book_panel{gap:.65rem}
+  .book_title{font-size:1.5rem}
+  .cal_grid .choice span,.date_grid .cal_grid .choice span{min-height:1.75rem!important}
+  .cal_month{font-size:1.2rem}
+  .cal_nav{width:2rem;height:2rem}
+  .book_steplabel{padding-top:.5rem!important}
+}
+@media (min-width:768px) and (max-height:820px){
+  .book_panel:has(.date_grid) .field_hint{display:none}
+}
+@media (min-width:768px) and (max-height:760px){
+  .book_panel:has(.date_grid)>.book_title{display:none}
+  .book_head{padding-top:.75rem!important;padding-bottom:.75rem!important}
+  .book_foot{padding-top:.7rem!important;padding-bottom:.7rem!important}
+}
+@media (max-height:860px){
+  .book_panel{gap:.7rem}
+  .cal_legend{margin-top:.3rem}
+  .book_panel .choice_grid .choice span{padding-top:.5rem;padding-bottom:.5rem}
+}
+@media (max-width:767px){
+  .book_panel:has(.date_grid)>.book_title{display:none}
+}
