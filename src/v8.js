@@ -127,7 +127,7 @@ $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-lis
   const bgAt=(x,y)=>{const els=document.elementsFromPoint(x,y);for(const e of els){if(nav.contains(e))continue;let n=e;
       while(n&&n!==document.documentElement){const l=lum(getComputedStyle(n).backgroundColor);if(l!==null)return l;n=n.parentElement}return 1}return 1};
   let raf=0;
-  const check=()=>{raf=0;if(nav.classList.contains("is-open")){nav.classList.remove("is-dark");return}
+  const check=()=>{raf=0;if(nav.classList.contains("is-open")||nav.classList.contains("is-mega")){nav.classList.remove("is-dark");return}
     const y=nav.getBoundingClientRect().bottom-2;const l=Math.min(bgAt(innerWidth*.25,y),bgAt(innerWidth*.75,y));
     nav.classList.toggle("is-dark",l<.18)};
   const q=()=>{raf||(raf=requestAnimationFrame(check))};

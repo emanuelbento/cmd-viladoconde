@@ -47,7 +47,7 @@
 }
 /* Navbar escura sobre secções escuras */
 .nav_component::before{transition:opacity .5s,background-color .5s,box-shadow .5s}
-.nav_component.is-dark::before{background:rgba(42,26,19,.82);box-shadow:0 1px 0 rgba(243,234,228,.12)}
+.nav_component.is-dark::before{background:linear-gradient(180deg,rgba(42,26,19,.78),rgba(42,26,19,.66))!important;box-shadow:inset 0 1px 0 rgba(243,234,228,.08),0 1px 0 rgba(243,234,228,.1),0 18px 40px -28px rgba(0,0,0,.5)!important}
 .nav_component.is-dark .nav_link,.nav_component.is-dark .nav_link-text,.nav_component.is-dark .nav_status,.nav_component.is-dark .status-pill,.nav_component.is-dark [data-menu-btn]{color:#F3EAE4;transition:color .5s}
 .nav_component.is-dark .status-pill_sub{color:rgba(243,234,228,.6)}
 .nav_component.is-dark .status-pill:not(.is-open) .status-pill_dot{background-color:#F3EAE4}
