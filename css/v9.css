@@ -64,3 +64,9 @@ a[data-external]::after{content:"↗";display:inline-block;margin-left:.3em;font
 a[data-external]:hover::after{transform:translate(2px,-2px)}
 /* Contactos: nota da chamada mais discreta */
 .visit_note{margin-top:0;font-weight:400}
+.legal_sec:first-child{border-top:0;padding-top:0}.legal_sec{scroll-margin-top:110px}
+.legal_toc-link{transition:color .3s}
+.legal_toc-link:hover,.legal_toc-link[aria-current]{color:var(--_base-color---brand--tinta)}
+.legal_toc-num{transition:color .3s}
+.legal_toc-link[aria-current] .legal_toc-num{color:var(--_base-color---support--terracota);font-weight:700}
+.legal_meta .tag{margin:0}

@@ -134,3 +134,9 @@ $$("[data-testimonial-wrap]").forEach(wrap=>{const list=$("[data-testimonial-lis
   addEventListener("scroll",q,{passive:true});addEventListener("resize",q);addEventListener("load",q);
   new MutationObserver(q).observe(nav,{attributes:true,attributeFilter:["class"]});q();
 })();
+/* legal toc: estado ativo por secção */
+(()=>{const toc=[...document.querySelectorAll('[data-toc]')],secs=[...document.querySelectorAll('[data-sec]')];if(!toc.length||!secs.length)return;
+const set=i=>toc.forEach(b=>{b.dataset.toc===String(i)?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current')});set(0);
+toc.forEach(b=>b.addEventListener('click',e=>{const s=secs[+b.dataset.toc];if(!s)return;e.preventDefault();window.cmdLenis?cmdLenis.scrollTo(s,{offset:-110,duration:1.2}):s.scrollIntoView({behavior:'smooth'});history.replaceState(null,'','#'+s.id)}));
+const run=()=>{if(window.ScrollTrigger)secs.forEach(s=>ScrollTrigger.create({trigger:s,start:'top 22%',end:'bottom 22%',onToggle:x=>{x.isActive&&set(s.dataset.sec)}}));else{const io=new IntersectionObserver(es=>es.forEach(en=>{en.isIntersecting&&set(en.target.dataset.sec)}),{rootMargin:'-22% 0px -70% 0px'});secs.forEach(s=>io.observe(s))}};
+document.readyState==='complete'?run():addEventListener('load',run)})();
