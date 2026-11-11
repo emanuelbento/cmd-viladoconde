@@ -8,8 +8,8 @@
 .cal_legend{margin-top:.45rem}
 .book_panel .field_hint{font-size:.8125rem;line-height:1.45}
 @media (min-width:768px){
-  .book_panel .choice_grid .choice span{flex-direction:row;align-items:baseline;justify-content:space-between;gap:.75rem;padding-top:.7rem;padding-bottom:.7rem}
-  .book_panel .choice_grid .choice span>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* só o Período fica numa linha; nomes de profissionais são longos e empilham */
+  .book_panel .book_fieldset:has(.date_grid)+.book_fieldset .choice_grid .choice span{flex-direction:row;align-items:baseline;justify-content:space-between;gap:.75rem;padding-top:.7rem;padding-bottom:.7rem}
 }
 @media (max-height:860px){
   .book_title{font-size:1.75rem;margin-top:0}
