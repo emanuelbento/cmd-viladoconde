@@ -165,3 +165,7 @@ const ced=Object.keys(facts).find(k=>/c[eé]dula/.test(k));ced&&(p.identifier={"
 if(/^\/especialidades\/[^/]+/.test(location.pathname)&&h1){g.push({"@type":"MedicalWebPage","@id":(o+location.pathname)+"#pagina",url:(o+location.pathname),name:document.title,description:document.querySelector('meta[name="description"]')?.content||void 0,specialty:h1,publisher:clinic,inLanguage:"pt-PT"})}
 g.length&&add({"@context":"https://schema.org","@graph":g})};
 document.readyState==="complete"?setTimeout(run,300):addEventListener("load",()=>setTimeout(run,300))})();
+/* acessibilidade: saltar para o conteúdo e nomes acessíveis válidos nos textos divididos */
+(()=>{const m=document.querySelector("main");if(m){m.id||(m.id="conteudo");m.hasAttribute("tabindex")||m.setAttribute("tabindex","-1");const a=document.createElement("a");a.className="skip-link";a.href="#"+m.id;a.textContent="Saltar para o conteúdo";document.body.prepend(a)}
+const fix=()=>document.querySelectorAll("div[aria-label]:not([role]),p[aria-label]:not([role]),span[aria-label]:not([role])").forEach(el=>el.setAttribute("role",el.classList.contains("rv2_stars")?"img":"group"));
+fix();new MutationObserver(fix).observe(document.body,{subtree:!0,attributes:!0,attributeFilter:["aria-label"]})})();

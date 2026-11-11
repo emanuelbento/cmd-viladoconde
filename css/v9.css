@@ -77,3 +77,9 @@ a[data-external]:hover::after{transform:translate(2px,-2px)}
 .legal_sec li::marker{color:var(--_base-color---brand--coral)}
 .legal_sec strong{color:var(--_base-color---brand--tinta);font-weight:600}
 .legal_sec>div a{color:var(--_base-color---brand--borgonha);font-weight:600;border-bottom:1px solid currentColor;text-decoration:none}
+.skip-link{position:fixed;left:1rem;top:1rem;z-index:10000;padding:.75rem 1.1rem;border-radius:999px;background:var(--_base-color---brand--borgonha);color:#fff;font-weight:600;transform:translateY(-200%);transition:transform .3s}
+.skip-link:focus{transform:none;outline:2px solid #fff;outline-offset:2px}
+.team-arc_dots{gap:16px}
+.team-arc_dots button{position:relative}
+.team-arc_dots button::after{content:"";position:absolute;inset:-8px}
+a[href*="emanuelbento.pt"]{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}

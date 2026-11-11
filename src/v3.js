@@ -62,7 +62,7 @@ armWt();addEventListener("load",armWt);
 /* ---------- Manifesto: o texto revela-se com o scroll ---------- */
 const mf=$("[data-manifesto]");
 if(mf){const tx=$("[data-manifesto-text]",mf);
-  if(A&&tx&&window.SplitText){SplitText.create(tx,{type:"words",wordsClass:"mw",autoSplit:true,onSplit:s=>gsap.fromTo(s.words,{opacity:.14},{opacity:1,ease:"none",stagger:.1,scrollTrigger:{trigger:tx,start:"top 82%",end:"bottom 45%",scrub:.6}})});
+  if(A&&tx&&window.SplitText){SplitText.create(tx,{type:"words",wordsClass:"mw",autoSplit:true,onSplit:s=>gsap.fromTo(s.words,{opacity:.5},{opacity:1,ease:"none",stagger:.1,scrollTrigger:{trigger:tx,start:"top 82%",end:"bottom 45%",scrub:.6}})});
     gsap.from($$(".manifesto_portrait",mf),{scale:.6,autoAlpha:0,duration:1,stagger:.1,ease:"expo.out",scrollTrigger:{trigger:mf,start:"top 55%",once:true}});
     gsap.from($$(".manifesto_foot > *",mf),{y:20,autoAlpha:0,duration:1,stagger:.08,ease:"expo.out",scrollTrigger:{trigger:".manifesto_foot",start:"top 90%",once:true}})}}
 
