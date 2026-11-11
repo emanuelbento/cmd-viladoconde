@@ -83,3 +83,5 @@ a[data-external]:hover::after{transform:translate(2px,-2px)}
 .team-arc_dots button{position:relative}
 .team-arc_dots button::after{content:"";position:absolute;inset:-8px}
 a[href*="emanuelbento.pt"]{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.legal_num,.legal_toc-link[aria-current] .legal_toc-num{color:#A8523E}
+[data-k] sup{color:var(--_base-color---support--muted);opacity:1}
