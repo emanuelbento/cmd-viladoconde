@@ -1,8 +1,9 @@
 /* ---------- Percurso: a linha passa de secção em secção ----------
    Desktop (≥992): a linha só aparece nas passagens, sempre em curva, com o traço das linhas
-   que já existem. Entra na linha das especialidades vinda de cima, desce do monograma até à
-   pista dos percursos e sai da pista a desvanecer. Entre passagens fica vazio: a continuidade
-   lê-se pela direção. A onda da marcação mantém-se como chegada.
+   que já existem. Sai das especialidades pelo monograma e sai da pista dos percursos, sempre
+   a desvanecer na direção da secção seguinte. Entre passagens fica vazio: a continuidade
+   lê-se pela direção. A linha das especialidades começa no "Continue a descer" e a onda da
+   marcação é a chegada.
    Telemóvel e tablet: linha fixa na margem esquerda que avança com a página. */
 (()=>{const sig=document.querySelector(".section_signature");if(!sig||!window.gsap||!window.ScrollTrigger)return;
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches,NS="http://www.w3.org/2000/svg";
@@ -20,29 +21,18 @@ const mm=gsap.matchMedia();
 mm.add("(min-width:992px)",()=>{
   const svg=el("svg",{class:"route_svg","aria-hidden":"true",focusable:"false"});document.body.appendChild(svg);document.documentElement.classList.add("has-route");
   const s2=el("path",{class:"route_path"}),s3=el("path",{class:"route_path"});svg.append(s2,s3);
-  const sigSvg=sig.querySelector(".signature_svg"),sigPath=sig.querySelector(".signature_path");
-  const lead=el("path",{class:"route_path route_lead"});sigSvg&&sigSvg.insertBefore(lead,sigSvg.firstChild);
+  const sigSvg=sig.querySelector(".signature_svg");
   const pinST=()=>ScrollTrigger.getAll().find(t=>t.pin&&sig.contains(t.pin));
   const G={ok:!1};
   const len=p=>{const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;return L};
   const build=()=>{const st=pinST(),pt=[...document.querySelectorAll(".pex2_track")].find(t=>t.offsetParent&&t.getBoundingClientRect().height>0);
-    if(!st||!pt||!sigSvg||!sigPath){G.ok=!1;return}
-    svg.querySelector("defs")?.remove();sigSvg.querySelectorAll("defs[data-route]").forEach(d=>d.remove());
+    if(!st||!pt||!sigSvg){G.ok=!1;return}
+    svg.querySelector("defs")?.remove();
     const doc=document.documentElement;svg.setAttribute("width",doc.scrollWidth);svg.setAttribute("height",doc.scrollHeight);svg.setAttribute("viewBox",`0 0 ${doc.scrollWidth} ${doc.scrollHeight}`);
-    /* 1 · entrada na linha das especialidades: cai do topo e assenta na tangente de partida da linha */
-    const m=/^M\s*([\d.\-]+)[ ,]([\d.\-]+)\s*C\s*([\d.\-]+)[ ,]([\d.\-]+)/.exec(sigPath.getAttribute("d")||"");if(!m){G.ok=!1;return}
-    const ex=+m[1],ey=+m[2],tdx=+m[3]-ex,tdy=+m[4]-ey,tl=Math.hypot(tdx,tdy)||1,T=[tdx/tl,tdy/tl];
     const sr=sigSvg.getBoundingClientRect(),oy=sr.top-st.pin.getBoundingClientRect().top;
     const tr=sig.querySelector(".signature_track"),tx=gsap.getProperty(tr,"x")||0;
     const pg=document.querySelector(".padding-global"),gx=Math.max(16,(parseFloat(getComputedStyle(pg).paddingLeft)||64)/2);
-    /* a linha chega ao "Continue a descer" pela esquerda: o texto faz de ponte até à linha */
-    const hint=sig.querySelector(".signature_hint"),hr=hint?hint.getBoundingClientRect():null;
-    const a0=[gx-(sr.left-tx),-oy],a1=hr?[hr.left-sr.left-14,ey]:[ex,ey];
-    lead.setAttribute("d",bez(a0,a1,[0,1],hr?[1,0]:T,.35));
-    let ld=sigSvg.querySelector("defs[data-route]");ld||(ld=el("defs",{"data-route":"1"}),sigSvg.insertBefore(ld,sigSvg.firstChild));
-    const gl=el("linearGradient",{id:"route-lead-g",gradientUnits:"userSpaceOnUse",x1:f(a0[0]),y1:f(a0[1]),x2:f(a0[0]),y2:f(a0[1]+(ey-a0[1])*.6)});
-    gl.append(el("stop",{offset:"0","stop-color":"#EA6F4E","stop-opacity":"0"}),el("stop",{offset:"1","stop-color":"#EA6F4E","stop-opacity":"1"}));ld.appendChild(gl);lead.style.stroke="url(#route-lead-g)";
-    /* 2 · saída das especialidades pelo monograma */
+    /* 1 · saída das especialidades pelo monograma */
     const tip=sig.querySelector("[data-sig-tip]"),shift=tr.scrollWidth-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
     const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height;
@@ -51,23 +41,22 @@ mm.add("(min-width:992px)",()=>{
     const q2=[tipX+(px-tipX)*.6,Math.max(tipY+160,spTop-56)];
     s2.setAttribute("d",bez([tipX,tipY],q2,[0,1],[(px-tipX)/Math.max(1,Math.hypot(px-tipX,q2[1]-tipY))*.6,.8],.45));
     s2.style.stroke=fade(svg,[tipX,tipY+(q2[1]-tipY)*.35],q2,1,0);
-    /* 3 · saída da pista: curva larga para a margem, a desvanecer antes da secção seguinte */
+    /* 2 · saída da pista: curva larga para a margem, a desvanecer antes da secção seguinte */
     const spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+240;
     const q3=[Math.max(gx,px-Math.min(260,(spBot-pBot)*1.1)),Math.min(spBot-24,pBot+Math.max(120,(spBot-pBot)*.85))];
     s3.setAttribute("d",bez([px,pBot],q3,[0,1],[-1,.35],.5));
     s3.style.stroke=fade(svg,[px,pBot+(q3[1]-pBot)*.25],q3,1,0);
-    Object.assign(G,{ok:!0,L0:len(lead),L2:len(s2),L3:len(s3),sigTop:st.start,pinEnd:st.end,s2End:q2[1],pBot,q3y:q3[1]});draw(scrollY)};
+    Object.assign(G,{ok:!0,L2:len(s2),L3:len(s3),sigTop:st.start,pinEnd:st.end,s2End:q2[1],pBot,q3y:q3[1]});draw(scrollY)};
   const vh=()=>innerHeight*.65,cl=v=>v<0?0:v>1?1:v;
   const set=(p,L,k)=>{p.style.strokeDashoffset=(L*(1-k)).toFixed(1)};
-  const draw=s=>{if(!G.ok)return;if(RM){[[lead,G.L0],[s2,G.L2],[s3,G.L3]].forEach(([p,L])=>set(p,L,1));return}
+  const draw=s=>{if(!G.ok)return;if(RM){[[s2,G.L2],[s3,G.L3]].forEach(([p,L])=>set(p,L,1));return}
     const t=s+vh();
-    set(lead,G.L0,cl((s-(G.sigTop-vh()))/vh()));
     set(s2,G.L2,s<G.pinEnd?0:cl((s-G.pinEnd)/Math.max(1,G.s2End-G.pinEnd-vh())));
     set(s3,G.L3,cl((t-G.pBot)/Math.max(1,G.q3y-G.pBot)))};
   const trig=ScrollTrigger.create({start:0,end:"max",onUpdate:self=>draw(self.scroll())});
   const onRefresh=()=>requestAnimationFrame(build);ScrollTrigger.addEventListener("refresh",onRefresh);
   document.fonts&&document.fonts.ready.then(()=>ScrollTrigger.refresh());build();
-  return()=>{ScrollTrigger.removeEventListener("refresh",onRefresh);trig.kill();svg.remove();lead.remove();sigSvg?.querySelector("defs[data-route]")?.remove();document.documentElement.classList.remove("has-route")}});
+  return()=>{ScrollTrigger.removeEventListener("refresh",onRefresh);trig.kill();svg.remove();document.documentElement.classList.remove("has-route")}});
 
 mm.add("(max-width:991px)",()=>{
   const bar=document.createElement("div");bar.className="route_rail";bar.setAttribute("aria-hidden","true");bar.innerHTML='<span class="route_rail-fill"></span>';document.body.appendChild(bar);
