@@ -49,7 +49,7 @@ mm.add("(min-width:992px)",()=>{
     /* 3 · do fim dos percursos ao botão de marcação */
     const sp=document.querySelector(".section_percursos"),spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+200;
     const cr=cta.getBoundingClientRect(),ctaX=pageX(cr),ctaY=pageY(cr)+cr.height/2;
-    s3.setAttribute("d",curve([[px,pBot],[px,spBot+48],[gx,spBot+48],[gx,ctaY],[ctaX-10,ctaY]]));
+    s3.setAttribute("d",curve([[px,pBot],[px,pBot+28],[lx2,pBot+28],[lx2,spBot+48],[gx,spBot+48],[gx,ctaY],[ctaX-10,ctaY]],28));
     end.setAttribute("cx",ctaX-10);end.setAttribute("cy",ctaY);
     Object.assign(G,{ok:!0,L1:len(s1),L0:len(lead),L2:len(s2),L3:len(s3),y0,sigTop,pinEnd:st.end,s2End:pTop,pBot,ctaY});draw(scrollY)};
   const vh=()=>innerHeight*.65,cl=v=>v<0?0:v>1?1:v;
