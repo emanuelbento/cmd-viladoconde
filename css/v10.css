@@ -1,34 +1,23 @@
-/* v10 · Raleway: algarismos alinhados, pesos 400/500, corpo mais legível */
-body{font-variant-numeric:lining-nums;font-weight:400;line-height:1.6}
-.text-weight-light,.text-weight-xlight,.text-weight-thin{font-weight:400}
+/* v10 · Raleway: o que as classes do Webflow não exprimem (algarismos, tags, descendentes, estados, classes geradas por JS) */
+body{font-variant-numeric:lining-nums}
 /* dados: telefones, horários, contadores, datas, passos */
 a[href^="tel:"],.visit_link,.info_card-phone,.menu_phones,.cta_phone,.footer_phones,.hours_time,.hours_day,.status-pill_sub,
 .team-arc_count,.cs_count,.rv2_count,.field_count,[data-k] sup,.legal_num,.legal_toc-num,.legal_meta,.signature_num,
 .menu_link-num,.nav_mega-num,.book_steplabel,.date_grid,.review_val,.book_ref,.case_dur,.pex2_when,.cases-index_dur,.tnum{font-variant-numeric:lining-nums tabular-nums}
-/* texto corrido: 400, 16 a 17 px, entrelinha 1.6 */
-p,.text-size-regular,.espd_text,.signature_lead,.pex2_text,.book_intro,.book_card-text,.case_text,.signature_desc,.pex2_desc{font-weight:400;line-height:1.6}
-.book_intro,.book_card-text,.case_text,.signature_desc,.pex2_desc{font-size:1rem}
-@media (min-width:992px){p:not([class]),.text-size-regular,.espd_text,.signature_lead,.pex2_text,.legal_sec>div>p,.legal_sec>div>ul>li{font-size:1.0625rem}}
-.text-size-large{font-weight:400;line-height:1.6}
-/* texto secundário: 400, mínimo 14 px, ligeiro espaçamento */
-.team_role,.team-card_role,.info_card-role,.text-size-small,.menu_phones,.nav_mega-text,.opt,.rv2_score-txt,.field_hint,.book_alt,.cases_note,.cases-index_dur,.cookie_text,.manifesto_role{font-weight:400;letter-spacing:.01em;line-height:1.55}
-.rv2_score-txt,.field_hint,.book_alt,.cases_note,.cases-index_dur{font-size:.875rem}
-.footer_note,.visit_note,.cta_phone-note{font-size:.8125rem;letter-spacing:.015em;line-height:1.45}
-/* interface: 500 */
-.button,.nav_link-text,.filter_btn,.cases-index_filter,.filter_clear,.book_legend,.book_back,.field label,.label,.link-arrow,.acc_more,.case_more-link,
-.signature_more,.vt_btn,.copy_btn,.breadcrumb_link,.faq_q,.hero_direction-title,.manifesto_caption,.info_card-name,.info_card-phone,.visit_link,
-.hours_day,.hours_time,.med_fact-val,.footer_link,.hero_chip-label,.status-pill,.menu_link,.review_row button,.choice span,.skip-link{font-weight:500}
-.footer_link,.breadcrumb_link,.filter_btn,.cases-index_filter,.filter_clear,.copy_btn,.vt_btn,.acc_more,.case_more-link,.signature_more{letter-spacing:.01em}
+/* texto corrido sem classe */
+p{font-weight:400;line-height:1.6}
+@media (min-width:992px){p:not([class]),.legal_sec>div>p,.legal_sec>div>ul>li{font-size:1.0625rem}}
+/* classes geradas por JS ou sem estilo no Designer */
+.book_intro{font-size:1rem;font-weight:400;line-height:1.6}
+.opt{font-weight:400;letter-spacing:.01em;line-height:1.55}
+.text-weight-xlight,.text-weight-thin{font-weight:400}
+.field label,.label,.cases-index_filter,.case_node,.review_key{font-weight:500}
+.cases-index_filter{letter-spacing:.01em}
+/* descendentes e estados */
 .hours_row.is-today .hours_day,.hours_row.is-today .hours_time{font-weight:600}
-/* etiquetas em maiúsculas: 500, mantém o tracking */
-.text-eyebrow,.eyebrow_component,.tag,.hero_start-label,.cta_label,.signature_hint,.book_steplabel,.visit_key,.med_fact-key,.team-arc_count,
-.pex2_label,.pex2_when,.lw_kind,.ba_label,.case_dur,.case_node,.cases-index_tag,.nav_mega-num,.hero_chip-soon,.cs_count,.rv2_count,.review_key{font-weight:500}
-/* números pequenos */
-.signature_num,.legal_num,.legal_toc-num,.menu_link-num,.ba_knob{font-weight:500}
-.legal_toc-link[aria-current] .legal_toc-num{font-weight:600}
 strong,b{font-weight:600}
-.loader_meta span,.book_head-title span,.book_alt a,.phone_wrap>span,.choice span small,.choice input:disabled+span small,.review_row button{font-weight:500}
-.rv2_name,.rv2_name .text-line,.case_visual.is-ba>div,.view_btn,.legal_sec>div a{font-weight:500}
+.loader_meta span,.book_head-title span,.book_alt a,.phone_wrap>span,.choice span,.choice span small,.choice input:disabled+span small,.review_row button,.skip-link{font-weight:500}
+.rv2_name .text-line,.case_visual.is-ba>div,.legal_sec>div a{font-weight:500}
 .book_title:focus{outline:none}
 @media (max-width:991px){.hero_top .text-eyebrow .hide-mobile-portrait{display:none}}
 [data-step="1"] .choice_grid{grid-auto-rows:1fr}

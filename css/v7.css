@@ -13,4 +13,4 @@ h1,h2,.heading-style-h1,.heading-style-h2,.heading-style-h3{text-wrap:balance}
 .acc_logos{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.25rem}
 .acc_logos span{display:grid;place-items:center;height:3rem;padding:0 1rem;border-radius:12px;background:rgba(255,253,251,.08)}
 .acc_logos img{height:1.15rem;width:auto;filter:brightness(0) invert(1);opacity:.85}
-.acc_more{margin-top:.5rem;color:inherit;font-size:.875rem;font-weight:600;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}
+.acc_more{margin-top:.5rem;color:inherit;font-size:.875rem;font-weight:500;letter-spacing:.01em;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}
