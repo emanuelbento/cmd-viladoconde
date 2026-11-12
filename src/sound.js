@@ -5,6 +5,7 @@
    · detente : cada especialidade alcançada no scroll horizontal e cada profissional no arco (mais leve)
    · sopro   : abrir e fechar o formulário de marcação e o menu (ar a passar)
    · fecho   : pedido de marcação enviado (brilho suave)
+   · seda    : o cursor a passar pelos fios do hero, com volume pela velocidade
    A altura varia uns poucos por cento a cada som, para nunca soar a nota nem a repetição mecânica.
    Os browsers só deixam tocar depois de um gesto (clique, toque ou tecla). O scroll não conta,
    por isso há um botão de som na navegação: é o convite e o interruptor. Preferência em localStorage. */
@@ -65,6 +66,26 @@
   if(nav){let was=nav.classList.contains("is-open");new MutationObserver(()=>{const v=nav.classList.contains("is-open");v!==was&&S.breath(v);was=v}).observe(nav,{attributes:!0,attributeFilter:["class"]})}
   /* fecho: mensagem de sucesso do formulário fica visível */
   document.querySelectorAll(".w-form-done").forEach(d=>new MutationObserver(()=>{getComputedStyle(d).display!=="none"&&S.done()}).observe(d,{attributes:!0,attributeFilter:["style"]}));
+
+  /* hero: passar o cursor pelos fios soa a mão a roçar seda. Ruído contínuo filtrado, com volume
+     pela velocidade do cursor e brilho pela altura; de vez em quando um fio "canta" muito baixo.
+     Some quando o cursor pára ou sai do hero. */
+  const hero=document.querySelector("[data-hero]")||document.querySelector(".section_hero");
+  if(hero){let silk=null,last=null,spd=0,inside=!1,raf=0;
+    const mkSilk=()=>{const s=ctx.createBufferSource();s.buffer=noise;s.loop=!0;
+      const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=2400;bp.Q.value=.9;
+      const hs=ctx.createBiquadFilter();hs.type="highshelf";hs.frequency.value=6000;hs.gain.value=-8;
+      const g=ctx.createGain();g.gain.value=0;s.connect(bp);bp.connect(hs);hs.connect(g);g.connect(out);s.start();return{s,bp,g}};
+    const step=()=>{raf=0;if(!silk)return;spd*=.9;const t=ctx.currentTime;
+      silk.g.gain.setTargetAtTime(inside&&ready()?Math.min(.05,spd*.0011):0,t,.08);
+      spd>.5&&(raf=requestAnimationFrame(step))};
+    hero.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse"||!ready())return;silk||(silk=mkSilk());inside=!0;
+      const r=hero.getBoundingClientRect(),y=(e.clientY-r.top)/r.height;
+      if(last){const d=Math.hypot(e.clientX-last[0],e.clientY-last[1]);spd=Math.min(60,spd*.6+d*.4);
+        silk.bp.frequency.setTargetAtTime(1600+(1-y)*2600,ctx.currentTime,.12);
+        if(d>18&&Math.random()<.07){const t=ctx.currentTime;glint(t,{f:jit(3600+(1-y)*1800,.08),a:.004,dur:.35,gain:.008})}}
+      last=[e.clientX,e.clientY];raf||(raf=requestAnimationFrame(step))},{passive:!0});
+    hero.addEventListener("pointerleave",()=>{inside=!1;last=null;silk&&silk.g.gain.setTargetAtTime(0,ctx.currentTime,.1)})}
 
   /* botão de som na navegação e interruptor de texto no rodapé */
   const btns=[];
