@@ -14,7 +14,7 @@
     const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=7000;out.connect(lp);lp.connect(ctx.destination);
     const len=ctx.sampleRate*.5|0,b=ctx.createBuffer(1,len,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;noise=b};
   const ready=()=>on&&ctx&&ctx.state==="running";
-  const unlock=()=>{if(!on)return;init();ctx.state==="suspended"&&ctx.resume().then(paint)};
+  const unlock=e=>{if(!on||e.target.closest&&e.target.closest(".sound_btn,.sound_toggle"))return;init();ctx.state==="suspended"&&ctx.resume().then(paint)};
   ["pointerdown","keydown","touchend"].forEach(t=>addEventListener(t,unlock,{passive:!0,capture:!0}));
   document.addEventListener("visibilitychange",()=>{ctx&&(document.hidden?ctx.suspend():on&&ctx.resume())});
   const gate=(k,ms)=>{const t=performance.now();if(t-(lastAt[k]||0)<ms)return!1;lastAt[k]=t;return!0};
