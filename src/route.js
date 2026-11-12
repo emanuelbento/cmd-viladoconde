@@ -21,7 +21,7 @@ mm.add("(min-width:992px)",()=>{
   const mk=()=>{const p=el("path",{class:"route_path"});svg.appendChild(p);return p};
   const s1=mk(),s2=mk(),s3=mk(),start=el("circle",{class:"route_dot",r:"4"}),end=el("circle",{class:"route_dot is-end",r:"4"});svg.append(start,end);
   const sigSvg=sig.querySelector(".signature_svg"),sigPath=sig.querySelector(".signature_path");
-  const lead=el("path",{class:"signature_path route_lead"});sigSvg&&sigSvg.insertBefore(lead,sigSvg.firstChild);
+  const lead=el("path",{class:"route_path route_lead"});sigSvg&&sigSvg.insertBefore(lead,sigSvg.firstChild);
   const pinST=()=>ScrollTrigger.getAll().find(t=>t.pin&&sig.contains(t.pin));
   const G={ok:!1};
   const len=p=>{const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;return L};
@@ -37,7 +37,7 @@ mm.add("(min-width:992px)",()=>{
     const m=/^M\s*([\d.\-]+)[ ,]([\d.\-]+)/.exec(sigPath.getAttribute("d")||"");if(!m){G.ok=!1;return}
     const ex=+m[1],ey=+m[2],sr=sigSvg.getBoundingClientRect(),oy=sr.top-st.pin.getBoundingClientRect().top;
     const tr=sig.querySelector(".signature_track"),tx=gsap.getProperty(tr,"x")||0,lx=gx-(sr.left-tx);
-    lead.setAttribute("d",curve([[lx,-oy],[lx,ey+40],[ex-30,ey+40],[ex-30,ey],[ex,ey]],15));
+    lead.setAttribute("d",curve([[lx,-oy],[lx,ey],[ex,ey]],28));
     /* 2 · do fim da linha das especialidades (monograma) aos percursos */
     const tip=sig.querySelector("[data-sig-tip]");const tw=tr.scrollWidth,shift=tw-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
