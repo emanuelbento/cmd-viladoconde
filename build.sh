@@ -9,12 +9,11 @@ $T src/v3.js -c -m -o dist/_v3.js
 $T src/v6.js -c -m -o dist/_v6.js
 $T src/v7.js -c -m -o dist/_v7.js
 $T src/v8.js -c -m -o dist/_v8.js
-$T src/route.js -c -m -o dist/_route.js
 $T src/sound.js -c -m -o dist/_sound.js
 $T src/logo.js -c -m -o dist/_logo.js
 $T src/hours.js -c -m -o dist/_hours.js
 w(){ printf 'try{'; cat "$1"; printf '\n}catch(e){console.error("cmd:",e)}\n'; }
-{ cat dist/_pre.js; w dist/_hours.js; w src/core.min.js; w dist/_logo.js; w src/siteui.min.js; w dist/_v3.js; w dist/_v6.js; w dist/_v7.js; w dist/_v8.js; w dist/_route.js; w dist/_sound.js; } > dist/cmd.min.js
+{ cat dist/_pre.js; w dist/_hours.js; w src/core.min.js; w dist/_logo.js; w src/siteui.min.js; w dist/_v3.js; w dist/_v6.js; w dist/_v7.js; w dist/_v8.js; w dist/_sound.js; } > dist/cmd.min.js
 $T src/gl.js -c -m -o dist/gl.min.js
 $T src/home.min.js -c -m -o dist/home.min.js
 rm dist/_*.js

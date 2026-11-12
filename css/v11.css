@@ -1,15 +1,11 @@
-/* v11 · percurso contínuo */
-.route_svg{position:absolute;top:0;left:0;z-index:3;pointer-events:none;overflow:visible}
-.route_path{fill:none;stroke:#EA6F4E;stroke-width:1.6;stroke-linecap:round}
-
-.route_rail{position:fixed;left:8px;top:96px;bottom:24px;width:2px;z-index:40;pointer-events:none;background:rgba(194,99,76,.16);border-radius:2px}
-.route_rail-fill{position:absolute;inset:0;background:#EA6F4E;transform-origin:top;transform:scaleY(0);border-radius:2px}
-.route_rail-dot{position:absolute;left:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--_base-color---support--marfim,#F3EAE4);box-shadow:inset 0 0 0 1.5px rgba(194,99,76,.5);transition:background-color .3s,box-shadow .3s}
-.route_rail-dot.is-on{background:#EA6F4E;box-shadow:none}
-html.is-book-open .route_rail,body:has([data-book-drawer][aria-hidden="false"]) .route_rail{opacity:0}
-@media (prefers-reduced-motion:reduce){.route_rail-dot{transition:none}}
-.route_rail{transition:opacity .35s}
-.route_rail.is-muted{opacity:0}
-/* interruptor de som no rodapé */
+/* v11 · som */
+.sound_btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:2px;width:2.25rem;height:2.25rem;padding:0;margin:0;border:0;border-radius:999px;background:transparent;color:inherit;cursor:pointer;box-shadow:inset 0 0 0 1px currentColor;opacity:.55;transition:opacity .3s}
+.sound_btn:hover,.sound_btn:focus-visible,.sound_btn.is-live{opacity:1}
+.sound_btn span{display:block;width:2px;height:3px;border-radius:2px;background:currentColor;transition:height .4s cubic-bezier(.16,1,.3,1)}
+.sound_btn.is-live span:nth-child(1){height:6px}.sound_btn.is-live span:nth-child(2){height:11px}.sound_btn.is-live span:nth-child(3){height:8px}.sound_btn.is-live span:nth-child(4){height:4px}
+.sound_btn.is-live span{animation:cmdSnd 1.6s ease-in-out infinite alternate}
+.sound_btn.is-live span:nth-child(2){animation-delay:-.4s}.sound_btn.is-live span:nth-child(3){animation-delay:-.9s}.sound_btn.is-live span:nth-child(4){animation-delay:-1.2s}
+@keyframes cmdSnd{to{transform:scaleY(.55)}}
+@media (prefers-reduced-motion:reduce){.sound_btn span{animation:none!important;transition:none}}
 .sound_toggle{appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .sound_toggle[aria-pressed="false"]{opacity:.7}
