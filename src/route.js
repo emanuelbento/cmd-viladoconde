@@ -73,7 +73,8 @@ mm.add("(max-width:991px)",()=>{
   const dots=secs.map(()=>{const d=document.createElement("span");d.className="route_rail-dot";bar.appendChild(d);return d});
   let max=1,pos=[];
   const build=()=>{max=Math.max(1,document.documentElement.scrollHeight-innerHeight);pos=secs.map(s=>Math.min(1,Math.max(0,(pageY(s.getBoundingClientRect())-innerHeight*.5)/max)));dots.forEach((d,i)=>d.style.top=(pos[i]*100).toFixed(2)+"%");draw(scrollY)};
-  const draw=s=>{const k=Math.min(1,Math.max(0,s/max));fill.style.transform=`scaleY(${k.toFixed(4)})`;dots.forEach((d,i)=>d.classList.toggle("is-on",k>=pos[i]-.002))};
+  const own=[...document.querySelectorAll(".section_signature,.section_percursos")];
+  const draw=s=>{const k=Math.min(1,Math.max(0,s/max)),h=innerHeight/2;bar.classList.toggle("is-muted",own.some(o=>{const r=o.getBoundingClientRect();return r.top<h&&r.bottom>h}));fill.style.transform=`scaleY(${k.toFixed(4)})`;dots.forEach((d,i)=>d.classList.toggle("is-on",k>=pos[i]-.002))};
   const trig=ScrollTrigger.create({start:0,end:"max",onUpdate:self=>draw(self.scroll())});
   const onRefresh=()=>requestAnimationFrame(build);ScrollTrigger.addEventListener("refresh",onRefresh);build();
   return()=>{ScrollTrigger.removeEventListener("refresh",onRefresh);trig.kill();bar.remove()}});
