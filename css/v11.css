@@ -1,9 +1,6 @@
 /* v11 · percurso contínuo */
 .route_svg{position:absolute;top:0;left:0;z-index:3;pointer-events:none;overflow:visible}
 .route_path{fill:none;stroke:#EA6F4E;stroke-width:1.6;stroke-linecap:round}
-.route_dot{fill:#EA6F4E}
-.route_dot.is-end{fill:transparent;stroke:#EA6F4E;stroke-width:1.6;transition:fill .4s}
-.route_dot.is-end.is-on{fill:#EA6F4E}
 
 .route_rail{position:fixed;left:8px;top:96px;bottom:24px;width:2px;z-index:40;pointer-events:none;background:rgba(194,99,76,.16);border-radius:2px}
 .route_rail-fill{position:absolute;inset:0;background:#EA6F4E;transform-origin:top;transform:scaleY(0);border-radius:2px}
@@ -11,6 +8,8 @@
 .route_rail-dot.is-on{background:#EA6F4E;box-shadow:none}
 html.is-book-open .route_rail,body:has([data-book-drawer][aria-hidden="false"]) .route_rail{opacity:0}
 @media (prefers-reduced-motion:reduce){.route_rail-dot{transition:none}}
-.has-route .section_marcacao .cta_line{display:none}
 .route_rail{transition:opacity .35s}
 .route_rail.is-muted{opacity:0}
+/* interruptor de som no rodapé */
+.sound_toggle{appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.sound_toggle[aria-pressed="false"]{opacity:.7}
