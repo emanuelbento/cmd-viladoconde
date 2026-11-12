@@ -17,7 +17,7 @@ const curve=(P,r=48)=>{const f=n=>n.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1]
 const mm=gsap.matchMedia();
 
 mm.add("(min-width:992px)",()=>{
-  const svg=el("svg",{class:"route_svg","aria-hidden":"true",focusable:"false"});document.body.appendChild(svg);
+  const svg=el("svg",{class:"route_svg","aria-hidden":"true",focusable:"false"});document.body.appendChild(svg);document.documentElement.classList.add("has-route");
   const mk=()=>{const p=el("path",{class:"route_path"});svg.appendChild(p);return p};
   const s1=mk(),s2=mk(),s3=mk(),start=el("circle",{class:"route_dot",r:"4"}),end=el("circle",{class:"route_dot is-end",r:"4"});svg.append(start,end);
   const sigSvg=sig.querySelector(".signature_svg"),sigPath=sig.querySelector(".signature_path");
@@ -64,7 +64,7 @@ mm.add("(min-width:992px)",()=>{
   const trig=ScrollTrigger.create({start:0,end:"max",onUpdate:self=>draw(self.scroll())});
   const onRefresh=()=>requestAnimationFrame(build);ScrollTrigger.addEventListener("refresh",onRefresh);
   document.fonts&&document.fonts.ready.then(()=>ScrollTrigger.refresh());build();
-  return()=>{ScrollTrigger.removeEventListener("refresh",onRefresh);trig.kill();svg.remove();lead.remove()}});
+  return()=>{ScrollTrigger.removeEventListener("refresh",onRefresh);trig.kill();svg.remove();lead.remove();document.documentElement.classList.remove("has-route")}});
 
 mm.add("(max-width:991px)",()=>{
   const bar=document.createElement("div");bar.className="route_rail";bar.setAttribute("aria-hidden","true");bar.innerHTML='<span class="route_rail-fill"></span>';document.body.appendChild(bar);

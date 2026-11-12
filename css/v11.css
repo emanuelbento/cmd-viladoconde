@@ -11,3 +11,4 @@
 .route_rail-dot.is-on{background:#EA6F4E;box-shadow:none}
 html.is-book-open .route_rail,body:has([data-book-drawer][aria-hidden="false"]) .route_rail{opacity:0}
 @media (prefers-reduced-motion:reduce){.route_rail-dot{transition:none}}
+.has-route .section_marcacao .cta_line{display:none}
