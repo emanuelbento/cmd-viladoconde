@@ -26,7 +26,7 @@ mat3 rx(float q){float c=cos(q),s=sin(q);return mat3(1.,0.,0.,0.,c,s,0.,-s,c);}
 mat3 ry(float q){float c=cos(q),s=sin(q);return mat3(c,0.,-s,0.,1.,0.,s,0.,c);}
 mat3 rz(float q){float c=cos(q),s=sin(q);return mat3(c,s,0.,-s,c,0.,0.,0.,1.);}
 vec3 P(float u,float v){float w=.46*(1.+.06*sin(3.*u));float r=1.+v*w*cos(u*.5);return vec3(r*cos(u),r*sin(u),v*w*sin(u*.5));}
-vec3 W(vec3 p){float sp=uT*.07+uScr;p=rz(sp)*p;p=rx(1.08+uM.y*.12)*ry(-.24+uM.x*.14)*p;return p*.74+vec3(.78,-.02,0.);}
+vec3 W(vec3 p){float sp=uT*.07+uScr;p=rz(sp)*p;p=rx(.5+uM.y*.12)*ry(-.12+uM.x*.14)*p;return p*.62+vec3(.9,-.02,0.);}
 vec2 S(vec3 p){float k=1./(1.+p.z*.42);return vec2(p.x*k/uAsp,p.y*k);}
 void main(){
  if(uMode<.5){float u=a.x*4.*PI,v=a.y;vec3 p=W(P(u,v));vZ=p.z;vU=u;vS=0.;gl_Position=vec4(S(p),0.,1.);return;}
