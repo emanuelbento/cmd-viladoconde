@@ -19,7 +19,7 @@ p,.text-size-regular,.espd_text,.signature_lead,.pex2_text,.book_intro,.book_car
 .signature_more,.vt_btn,.copy_btn,.breadcrumb_link,.faq_q,.hero_direction-title,.manifesto_caption,.info_card-name,.info_card-phone,.visit_link,
 .hours_day,.hours_time,.med_fact-val,.footer_link,.hero_chip-label,.status-pill,.menu_link,.review_row button,.choice span,.skip-link{font-weight:500}
 .footer_link,.breadcrumb_link,.filter_btn,.cases-index_filter,.filter_clear,.copy_btn,.vt_btn,.acc_more,.case_more-link,.signature_more{letter-spacing:.01em}
-.hours_day.is-today,.hours_time.is-today,[data-today] .hours_day,[data-today] .hours_time{font-weight:600}
+.hours_row.is-today .hours_day,.hours_row.is-today .hours_time{font-weight:600}
 /* etiquetas em maiúsculas: 500, mantém o tracking */
 .text-eyebrow,.eyebrow_component,.tag,.hero_start-label,.cta_label,.signature_hint,.book_steplabel,.visit_key,.med_fact-key,.team-arc_count,
 .pex2_label,.pex2_when,.lw_kind,.ba_label,.case_dur,.case_node,.cases-index_tag,.nav_mega-num,.hero_chip-soon,.cs_count,.rv2_count,.review_key{font-weight:500}
@@ -27,3 +27,4 @@ p,.text-size-regular,.espd_text,.signature_lead,.pex2_text,.book_intro,.book_car
 .signature_num,.legal_num,.legal_toc-num,.menu_link-num,.ba_knob{font-weight:500}
 .legal_toc-link[aria-current] .legal_toc-num{font-weight:600}
 strong,b{font-weight:600}
+.loader_meta span,.book_head-title span,.book_alt a,.phone_wrap>span,.choice span small,.choice input:disabled+span small,.review_row button{font-weight:500}
