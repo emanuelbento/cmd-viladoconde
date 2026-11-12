@@ -7,9 +7,13 @@
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches,NS="http://www.w3.org/2000/svg";
 const el=(t,a)=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n};
 const pageY=r=>r.top+scrollY,pageX=r=>r.left+scrollX;
-/* curva suave que passa por todos os pontos (Catmull-Rom) */
-const curve=P=>{let d=`M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}`;for(let i=0;i<P.length-1;i++){const a=P[i-1]||P[i],b=P[i],c=P[i+1],e=P[i+2]||c;
-  d+=` C${(b[0]+(c[0]-a[0])/6).toFixed(1)},${(b[1]+(c[1]-a[1])/6).toFixed(1)} ${(c[0]-(e[0]-b[0])/6).toFixed(1)},${(c[1]-(e[1]-b[1])/6).toFixed(1)} ${c[0].toFixed(1)},${c[1].toFixed(1)}`}return d};
+/* linha com cantos arredondados: troços retos e curvas de raio r nos vértices */
+const curve=(P,r=48)=>{const f=n=>n.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`;
+  for(let i=1;i<P.length-1;i++){const [ax,ay]=P[i-1],[bx,by]=P[i],[cx,cy]=P[i+1];
+    const l1=Math.hypot(bx-ax,by-ay),l2=Math.hypot(cx-bx,cy-by),k=Math.min(r,l1/2,l2/2);
+    const p1=[bx-(bx-ax)/l1*k,by-(by-ay)/l1*k],p2=[bx+(cx-bx)/l2*k,by+(cy-by)/l2*k];
+    d+=` L${f(p1[0])},${f(p1[1])} Q${f(bx)},${f(by)} ${f(p2[0])},${f(p2[1])}`}
+  const z=P[P.length-1];return d+` L${f(z[0])},${f(z[1])}`};
 const mm=gsap.matchMedia();
 
 mm.add("(min-width:992px)",()=>{
@@ -27,23 +31,23 @@ mm.add("(min-width:992px)",()=>{
     const doc=document.documentElement;svg.setAttribute("width",doc.scrollWidth);svg.setAttribute("height",doc.scrollHeight);svg.setAttribute("viewBox",`0 0 ${doc.scrollWidth} ${doc.scrollHeight}`);
     /* 1 · do hero ao início da secção das especialidades */
     const lr=lead0.getBoundingClientRect(),y0=pageY(lr)+8,sigTop=st.start;
-    const P1=[[gx,y0],[gx,y0+(sigTop-y0)*.5],[gx,sigTop]];s1.setAttribute("d",curve(P1));
+    const P1=[[gx,y0],[gx,sigTop]];s1.setAttribute("d",curve(P1));
     start.setAttribute("cx",gx);start.setAttribute("cy",y0);
     /* entrada na linha das especialidades: vive dentro do SVG da secção para acompanhar o pin */
     const m=/^M\s*([\d.\-]+)[ ,]([\d.\-]+)/.exec(sigPath.getAttribute("d")||"");if(!m){G.ok=!1;return}
     const ex=+m[1],ey=+m[2],sr=sigSvg.getBoundingClientRect(),oy=sr.top-st.pin.getBoundingClientRect().top;
     const tr=sig.querySelector(".signature_track"),tx=gsap.getProperty(tr,"x")||0,lx=gx-(sr.left-tx);
-    lead.setAttribute("d",curve([[lx,-oy],[lx,ey+44],[Math.max(lx+40,ex-40),ey+44],[ex,ey]]));
+    lead.setAttribute("d",curve([[lx,-oy],[lx,ey+40],[ex-30,ey+40],[ex-30,ey],[ex,ey]],15));
     /* 2 · do fim da linha das especialidades (monograma) aos percursos */
     const tip=sig.querySelector("[data-sig-tip]");const tw=tr.scrollWidth,shift=tw-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
     const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height,cx=px-28;
-    s2.setAttribute("d",curve([[tipX,tipY],[cx,tipY+70],[cx,pTop-60],[px,pTop]]));
+    s2.setAttribute("d",curve([[tipX,tipY],[tipX,pTop-32],[px,pTop-32],[px,pTop]],12));
     /* 3 · do fim dos percursos ao botão de marcação */
     const sp=document.querySelector(".section_percursos"),spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+200;
     const cr=cta.getBoundingClientRect(),ctaX=pageX(cr),ctaY=pageY(cr)+cr.height/2;
-    s3.setAttribute("d",curve([[px,pBot],[px,pBot+40],[cx,spBot-40],[gx,spBot+90],[gx,ctaY-90],[ctaX-12,ctaY]]));
-    end.setAttribute("cx",ctaX-12);end.setAttribute("cy",ctaY);
+    s3.setAttribute("d",curve([[px,pBot],[px,spBot+48],[gx,spBot+48],[gx,ctaY],[ctaX-10,ctaY]]));
+    end.setAttribute("cx",ctaX-10);end.setAttribute("cy",ctaY);
     Object.assign(G,{ok:!0,L1:len(s1),L0:len(lead),L2:len(s2),L3:len(s3),y0,sigTop,pinEnd:st.end,s2End:pTop,pBot,ctaY});draw(scrollY)};
   const vh=()=>innerHeight*.65,cl=v=>v<0?0:v>1?1:v;
   const set=(p,L,k)=>{p.style.strokeDashoffset=(L*(1-k)).toFixed(1)};
