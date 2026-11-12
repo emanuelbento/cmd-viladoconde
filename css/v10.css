@@ -29,3 +29,4 @@ p,.text-size-regular,.espd_text,.signature_lead,.pex2_text,.book_intro,.book_car
 strong,b{font-weight:600}
 .loader_meta span,.book_head-title span,.book_alt a,.phone_wrap>span,.choice span small,.choice input:disabled+span small,.review_row button{font-weight:500}
 .rv2_name,.rv2_name .text-line,.case_visual.is-ba>div,.view_btn,.legal_sec>div a{font-weight:500}
+.book_title:focus{outline:none}

@@ -34,7 +34,8 @@ $$("[data-book-drawer], .book_body").forEach(el=>el.setAttribute("data-lenis-pre
   [trg,mega].forEach(el=>el.addEventListener("pointerleave",e=>{const to=e.relatedTarget;if(to&&(mega.contains(to)||trg.contains(to)))return;hide()}));
   mega.addEventListener("pointerenter",()=>clearTimeout(t));
   $$(".nav_link",nav).forEach(l=>l!==trg&&l.addEventListener("pointerenter",()=>hide(true)));
-  addEventListener("keydown",e=>e.key==="Escape"&&hide(true));
+  addEventListener("keydown",e=>{if(e.key!=="Escape"||!open)return;const back=mega.contains(document.activeElement);hide(true);back&&trg.focus()});
+  document.addEventListener("focusin",e=>{if(open&&!mega.contains(e.target)&&!trg.contains(e.target))hide(true)});
   addEventListener("scroll",()=>open&&hide(true),{passive:true});
   /* imagem grande acompanha a especialidade em hover */
   if(big)links.forEach((l,i)=>l.addEventListener("pointerenter",()=>{const th=thumbs[i];if(!th||!th.getAttribute("src")||big.getAttribute("src")===th.getAttribute("src"))return;
@@ -174,3 +175,10 @@ fix();new MutationObserver(fix).observe(document.body,{subtree:!0,attributes:!0,
 /* selo do Webflow (só até haver site plan): fica dentro de uma zona com nome, sem o esconder */
 (()=>{const wrap=()=>{const b=document.querySelector("body > .w-webflow-badge");if(!b)return!1;let r=document.getElementById("wf-badge-region");if(!r){r=document.createElement("div");r.id="wf-badge-region";r.setAttribute("role","region");r.setAttribute("aria-label","Feito em Webflow");document.body.appendChild(r)}r.appendChild(b);return!0};
 let n=0;const t=setInterval(()=>{(wrap()||++n>40)&&clearInterval(t)},250);new MutationObserver(wrap).observe(document.body,{childList:!0})})();
+/* marcação com teclado: sem avanço automático, foco no título de cada passo */
+(()=>{addEventListener("pointerdown",()=>{window.cmdPtr=!0},!0);addEventListener("keydown",e=>{e.key!=="Escape"&&(window.cmdPtr=!1)},!0);
+const dr=document.querySelector("[data-book-drawer]"),lab=document.querySelector("[data-book-steplabel]");if(!dr)return;
+const isOpen=()=>dr.getAttribute("aria-hidden")==="false";
+const focusTitle=()=>{if(!isOpen())return;const st=[...dr.querySelectorAll("[data-step]")].find(s=>!s.hidden&&s.offsetParent!==null);const t=st&&st.querySelector(".book_title,h2,h3,legend");if(t){t.setAttribute("tabindex","-1");t.focus({preventScroll:!0})}};
+let was=isOpen();new MutationObserver(()=>{const o=isOpen();o&&!was&&setTimeout(focusTitle,450);was=o}).observe(dr,{attributes:!0,attributeFilter:["aria-hidden"]});
+lab&&new MutationObserver(()=>{isOpen()&&window.cmdPtr===!1&&setTimeout(focusTitle,450)}).observe(lab,{childList:!0,characterData:!0,subtree:!0})})();
