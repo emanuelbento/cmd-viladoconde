@@ -41,8 +41,11 @@ mm.add("(min-width:992px)",()=>{
     /* 2 · do fim da linha das especialidades (monograma) aos percursos */
     const tip=sig.querySelector("[data-sig-tip]");const tw=tr.scrollWidth,shift=tw-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
-    const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height,cx=px-28;
-    s2.setAttribute("d",curve([[tipX,tipY],[tipX,pTop-32],[px,pTop-32],[px,pTop]],12));
+    const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height;
+    const sp0=document.querySelector(".section_percursos"),spTop=sp0?pageY(sp0.getBoundingClientRect()):pTop-300;
+    const col=[...document.querySelectorAll(".pex2_label,.pex2_case-title")].find(e=>e.offsetParent),colL=col?pageX(col.getBoundingClientRect()):px;
+    const lx2=Math.min(tipX,colL-24);
+    s2.setAttribute("d",curve(lx2<tipX-2?[[tipX,tipY],[tipX,spTop-56],[lx2,spTop-56],[lx2,pTop-32],[px,pTop-32],[px,pTop]]:[[tipX,tipY],[tipX,pTop-32],[px,pTop-32],[px,pTop]],12));
     /* 3 · do fim dos percursos ao botão de marcação */
     const sp=document.querySelector(".section_percursos"),spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+200;
     const cr=cta.getBoundingClientRect(),ctaX=pageX(cr),ctaY=pageY(cr)+cr.height/2;
