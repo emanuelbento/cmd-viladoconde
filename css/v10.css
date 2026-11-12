@@ -30,6 +30,5 @@ strong,b{font-weight:600}
 .loader_meta span,.book_head-title span,.book_alt a,.phone_wrap>span,.choice span small,.choice input:disabled+span small,.review_row button{font-weight:500}
 .rv2_name,.rv2_name .text-line,.case_visual.is-ba>div,.view_btn,.legal_sec>div a{font-weight:500}
 .book_title:focus{outline:none}
-@media (max-width:767px){#wf-badge-region{position:fixed;inset:0;pointer-events:none;transform:translateY(-84px);z-index:2147483646}}
 @media (max-width:991px){.hero_top .text-eyebrow .hide-mobile-portrait{display:none}}
 [data-step="1"] .choice_grid{grid-auto-rows:1fr}
