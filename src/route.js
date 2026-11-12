@@ -35,22 +35,28 @@ mm.add("(min-width:992px)",()=>{
     const sr=sigSvg.getBoundingClientRect(),oy=sr.top-st.pin.getBoundingClientRect().top;
     const tr=sig.querySelector(".signature_track"),tx=gsap.getProperty(tr,"x")||0;
     const pg=document.querySelector(".padding-global"),gx=Math.max(16,(parseFloat(getComputedStyle(pg).paddingLeft)||64)/2);
-    const a0=[gx-(sr.left-tx),-oy];
-    lead.setAttribute("d",bez(a0,[ex,ey],[0,1],T,.55));
+    /* a linha chega ao "Continue a descer" pela esquerda: o texto faz de ponte até à linha */
+    const hint=sig.querySelector(".signature_hint"),hr=hint?hint.getBoundingClientRect():null;
+    const a0=[gx-(sr.left-tx),-oy],a1=hr?[hr.left-sr.left-14,ey]:[ex,ey];
+    lead.setAttribute("d",bez(a0,a1,[0,1],hr?[1,0]:T,.35));
     let ld=sigSvg.querySelector("defs[data-route]");ld||(ld=el("defs",{"data-route":"1"}),sigSvg.insertBefore(ld,sigSvg.firstChild));
     const gl=el("linearGradient",{id:"route-lead-g",gradientUnits:"userSpaceOnUse",x1:f(a0[0]),y1:f(a0[1]),x2:f(a0[0]),y2:f(a0[1]+(ey-a0[1])*.6)});
     gl.append(el("stop",{offset:"0","stop-color":"#EA6F4E","stop-opacity":"0"}),el("stop",{offset:"1","stop-color":"#EA6F4E","stop-opacity":"1"}));ld.appendChild(gl);lead.style.stroke="url(#route-lead-g)";
-    /* 2 · do monograma à pista dos percursos: desce e assenta na vertical da pista */
+    /* 2 · saída das especialidades pelo monograma */
     const tip=sig.querySelector("[data-sig-tip]"),shift=tr.scrollWidth-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
     const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height;
-    s2.setAttribute("d",bez([tipX,tipY],[px,pTop],[0,1],[0,1],.42));
+    const sp=document.querySelector(".section_percursos"),spTop=sp?pageY(sp.getBoundingClientRect()):pTop-240;
+    /* desce do monograma na direção da pista e desvanece antes da secção: a pista tem a sua própria linha */
+    const q2=[tipX+(px-tipX)*.6,Math.max(tipY+160,spTop-56)];
+    s2.setAttribute("d",bez([tipX,tipY],q2,[0,1],[(px-tipX)/Math.max(1,Math.hypot(px-tipX,q2[1]-tipY))*.6,.8],.45));
+    s2.style.stroke=fade(svg,[tipX,tipY+(q2[1]-tipY)*.35],q2,1,0);
     /* 3 · saída da pista: curva larga para a margem, a desvanecer antes da secção seguinte */
-    const sp=document.querySelector(".section_percursos"),spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+240;
+    const spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+240;
     const q3=[Math.max(gx,px-Math.min(260,(spBot-pBot)*1.1)),Math.min(spBot-24,pBot+Math.max(120,(spBot-pBot)*.85))];
     s3.setAttribute("d",bez([px,pBot],q3,[0,1],[-1,.35],.5));
     s3.style.stroke=fade(svg,[px,pBot+(q3[1]-pBot)*.25],q3,1,0);
-    Object.assign(G,{ok:!0,L0:len(lead),L2:len(s2),L3:len(s3),sigTop:st.start,pinEnd:st.end,s2End:pTop,pBot,q3y:q3[1]});draw(scrollY)};
+    Object.assign(G,{ok:!0,L0:len(lead),L2:len(s2),L3:len(s3),sigTop:st.start,pinEnd:st.end,s2End:q2[1],pBot,q3y:q3[1]});draw(scrollY)};
   const vh=()=>innerHeight*.65,cl=v=>v<0?0:v>1?1:v;
   const set=(p,L,k)=>{p.style.strokeDashoffset=(L*(1-k)).toFixed(1)};
   const draw=s=>{if(!G.ok)return;if(RM){[[lead,G.L0],[s2,G.L2],[s3,G.L3]].forEach(([p,L])=>set(p,L,1));return}
