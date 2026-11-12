@@ -180,5 +180,4 @@ let n=0;const t=setInterval(()=>{(wrap()||++n>40)&&clearInterval(t)},250);new Mu
 const dr=document.querySelector("[data-book-drawer]"),lab=document.querySelector("[data-book-steplabel]");if(!dr)return;
 const isOpen=()=>dr.getAttribute("aria-hidden")==="false";
 const focusTitle=()=>{if(!isOpen())return;const st=[...dr.querySelectorAll("[data-step]")].find(s=>!s.hidden&&s.offsetParent!==null);const t=st&&st.querySelector(".book_title,h2,h3,legend");if(t){t.setAttribute("tabindex","-1");t.focus({preventScroll:!0})}};
-let was=isOpen();new MutationObserver(()=>{const o=isOpen();o&&!was&&setTimeout(focusTitle,450);was=o}).observe(dr,{attributes:!0,attributeFilter:["aria-hidden"]});
-lab&&new MutationObserver(()=>{isOpen()&&window.cmdPtr===!1&&setTimeout(focusTitle,450)}).observe(lab,{childList:!0,characterData:!0,subtree:!0})})();
+let was=isOpen();new MutationObserver(()=>{const o=isOpen();o&&!was&&setTimeout(focusTitle,450);was=o}).observe(dr,{attributes:!0,attributeFilter:["aria-hidden"]});})();
