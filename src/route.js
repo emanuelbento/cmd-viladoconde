@@ -43,7 +43,7 @@ mm.add("(min-width:992px)",()=>{
     /* 2 · do monograma à pista dos percursos: desce e assenta na vertical da pista */
     const tip=sig.querySelector("[data-sig-tip]"),shift=tr.scrollWidth-innerWidth;
     const tipX=(+tip.getAttribute("cx"))+(sr.left-tx)-shift,tipY=st.end+(+tip.getAttribute("cy"))+oy;
-    const ptr=pt.getBoundingClientRect(),px=pageX(ptr)+ptr.width/2,pTop=pageY(ptr),pBot=pTop+ptr.height;
+    const ptr=pt.getBoundingClientRect(),px=pageX(ptr),pTop=pageY(ptr),pBot=pTop+ptr.height;
     s2.setAttribute("d",bez([tipX,tipY],[px,pTop],[0,1],[0,1],.42));
     /* 3 · saída da pista: curva larga para a margem, a desvanecer antes da secção seguinte */
     const sp=document.querySelector(".section_percursos"),spBot=sp?pageY(sp.getBoundingClientRect())+sp.offsetHeight:pBot+240;
