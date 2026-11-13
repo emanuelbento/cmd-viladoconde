@@ -47,7 +47,7 @@ if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábad
     let list;if(ps){const p=ag.profs.find(x=>x.slug===ps);if(!p||!p.datas)return{m:"fixa"};list=[p]}
     else{list=ag.profs.filter(p=>p.esp===esp);if(!list.length||!list.every(p=>p.datas))return{m:"fixa"}}
     const now=new Date;now.setHours(12,0,0,0);const t=new Date(now);t.setDate(t.getDate()+1);const min=K(t),max=K(new Date(now.getFullYear(),now.getMonth()+2,0,12));
-    const slots=new Map;ag.dates.forEach(d=>{if(d.date<min||d.date>max||!list.some(p=>p.slug===d.prof))return;const o=slots.get(d.date)||{manha:false,tarde:false};o.manha=o.manha||d.manha;o.tarde=o.tarde||d.tarde;slots.set(d.date,o)});
+    const slots=new Map;ag.open().forEach(d=>{if(d.date<min||d.date>max||!list.some(p=>p.slug===d.prof))return;const o=slots.get(d.date)||{manha:false,tarde:false};o.manha=o.manha||d.manha;o.tarde=o.tarde||d.tarde;slots.set(d.date,o)});
     return{m:slots.size?"datas":"espera",slots,who:list.length===1?list[0].nome:"A equipa desta área",key:ps||esp}};
   const per=()=>{const c=box.querySelector('input[name="Dia"]:checked'),mn=$("#per-manha"),tr=$("#per-tarde"),lm=$("[data-per-manha]"),lt=$("[data-per-tarde]");if(!tr)return;
     const off=(i,v)=>{if(!i)return;i.disabled=v;v&&i.checked&&(i.checked=false)};

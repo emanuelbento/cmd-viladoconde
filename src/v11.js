@@ -91,7 +91,7 @@ if(facts&&window.cmdAgenda){const slug=location.pathname.split("/").filter(Boole
   const MOS=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   const show=()=>{const ag=window.cmdAgenda,p=ag.profs&&ag.profs.find(x=>x.slug===slug);$(".med_fact.is-dates",facts)&&$(".med_fact.is-dates",facts).remove();if(!p||!p.datas)return;
     const now=new Date;now.setHours(12,0,0,0);const t=new Date(now);t.setDate(t.getDate()+1);const min=window.cmdHol?cmdHol.key(t):"";
-    const ds=ag.dates.filter(d=>d.prof===slug&&d.date>=min).slice(0,4);
+    const mg=new Map;ag.open().filter(d=>d.prof===slug&&d.date>=min).forEach(d=>{const o=mg.get(d.date)||{date:d.date,manha:false,tarde:false};o.manha=o.manha||d.manha;o.tarde=o.tarde||d.tarde;mg.set(d.date,o)});const ds=[...mg.values()].sort((a,b)=>a.date<b.date?-1:1).slice(0,4);
     const row=document.createElement("div");row.className="med_fact is-dates";
     row.innerHTML=`<div class="med_fact-key">Próximas datas</div><div class="med_dates">${ds.length?ds.map(d=>{const dt=new Date(d.date+"T12:00:00");return`<span>${dt.getDate()} ${MOS[dt.getMonth()]}${d.manha&&!d.tarde?" · manhã":d.tarde&&!d.manha?" · tarde":""}</span>`}).join(""):'<p class="med_fact-val">Datas a anunciar. Pode pedir para ficar em lista de espera.</p>'}</div>`;
     const ref=facts.children[0];ref?ref.after(row):facts.appendChild(row)};
