@@ -60,7 +60,7 @@ $$("[data-visit-map]").forEach(m=>{
       const el=document.createElement("a");el.className="vmap_marker";el.href=MAPS;el.target="_blank";el.rel="noopener";el.setAttribute("aria-label","Abrir a localização no Google Maps (abre noutro separador)");
       el.innerHTML='<span class="vmap_pin"><i></i></span><span class="vmap_tag"><b>CMD</b><span>Centro Médico e Dentário</span></span>';
       new maplibregl.Marker({element:el,anchor:"left",offset:[-15,0]}).setLngLat(LL).addTo(map);
-      m.classList.add("is-live");zb.hidden=false;
+      m.classList.add("is-live");zb.hidden=false;const at=$(".maplibregl-ctrl-attrib",m);at&&(at.classList.remove("maplibregl-compact-show"),at.removeAttribute("open"));
       if(A){gsap.fromTo(cv,{autoAlpha:0},{autoAlpha:1,duration:1,ease:"power2.out"});
         gsap.from($(".vmap_tag",el),{x:-12,autoAlpha:0,duration:1,delay:2.2,ease:"expo.out"});
         map.flyTo({...end,duration:2600,essential:true,easing:t=>1-Math.pow(2,-10*t)})}
