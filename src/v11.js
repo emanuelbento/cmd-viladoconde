@@ -10,7 +10,7 @@ const settle=()=>{window.cmdLenis&&cmdLenis.resize();window.ScrollTrigger&&Scrol
 /* ---------- 1. Mapa dos Contactos ---------- */
 $$("[data-visit-map]").forEach(m=>{
   const addr=m.getAttribute("data-visit-map")||"Rua dos Benguiados, 225, 4480-794 Vila do Conde";
-  const q=encodeURIComponent("Centro Médico e Dentário de Vila do Conde, "+addr);
+  const q=encodeURIComponent(addr+", Portugal");
   const parts=addr.split(","),l1=parts.slice(0,2).join(",").trim(),l2=parts.slice(2).join(",").trim().replace(/^\d{4}-\d{3}\s*/,"");
   const roads=[["h",44,14],["h",18,7],["h",78,6],["v",30,9],["v",57,7],["v",84,6]];
   m.innerHTML=`<div class="vmap_base" aria-hidden="true">${roads.map(([d,p,w])=>`<span class="vmap_road is-${d}" style="${d==="h"?"top":"left"}:${p}%;--w:${w}px"></span>`).join("")}<span class="vmap_road is-d"></span><span class="vmap_block" style="left:63%;top:6%;width:19%;height:30%"></span><span class="vmap_block" style="left:5%;top:56%;width:22%;height:32%"></span><span class="vmap_block is-park" style="left:34%;top:58%;width:20%;height:28%"></span></div>
