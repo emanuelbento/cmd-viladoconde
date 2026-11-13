@@ -32,7 +32,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)
   if(a.target&&a.target!=="_self"||a.hasAttribute("download")||a.closest("[data-book],[data-no-curtain]"))return;const u=new URL(a.href,location.href);
   u.origin===location.origin&&(u.pathname!==location.pathname||u.search!==location.search)&&S.play("page")},true);
 
-/* ---------- Marcação: calendário mensal (3 meses, domingo e feriados fechados, sábado só manhã) ----------
+/* ---------- Marcação: calendário mensal (2 meses, domingo e feriados fechados, sábado só manhã) ----------
    Profissionais com agenda "Por datas": o calendário abre só os dias publicados em Datas de consulta.
    Sem datas abertas, o passo passa a lista de espera: a pessoa escolhe o período e a clínica liga. */
 const box=$("[data-opt-date]");
@@ -46,7 +46,7 @@ if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábad
     const ec=form.querySelector('input[name="Especialidade"]:checked'),esp=ec?ec.dataset.slug:"",pc=form.querySelector('input[name="Profissional"]:checked'),ps=pc&&pc.dataset.slug;
     let list;if(ps){const p=ag.profs.find(x=>x.slug===ps);if(!p||!p.datas)return{m:"fixa"};list=[p]}
     else{list=ag.profs.filter(p=>p.esp===esp);if(!list.length||!list.every(p=>p.datas))return{m:"fixa"}}
-    const now=new Date;now.setHours(12,0,0,0);const t=new Date(now);t.setDate(t.getDate()+1);const min=K(t),max=K(new Date(now.getFullYear(),now.getMonth()+3,0,12));
+    const now=new Date;now.setHours(12,0,0,0);const t=new Date(now);t.setDate(t.getDate()+1);const min=K(t),max=K(new Date(now.getFullYear(),now.getMonth()+2,0,12));
     const slots=new Map;ag.dates.forEach(d=>{if(d.date<min||d.date>max||!list.some(p=>p.slug===d.prof))return;const o=slots.get(d.date)||{manha:false,tarde:false};o.manha=o.manha||d.manha;o.tarde=o.tarde||d.tarde;slots.set(d.date,o)});
     return{m:slots.size?"datas":"espera",slots,who:list.length===1?list[0].nome:"A equipa desta área",key:ps||esp}};
   const per=()=>{const c=box.querySelector('input[name="Dia"]:checked'),mn=$("#per-manha"),tr=$("#per-tarde"),lm=$("[data-per-manha]"),lt=$("[data-per-tarde]");if(!tr)return;
@@ -61,7 +61,7 @@ if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábad
     const nk=cur.m+":"+(cur.key||"");if(nk!==lastKey){lastKey=nk;sel=null;if(cur.m==="datas"){const f=[...cur.slots.keys()].sort()[0];mo=(+f.slice(0,4)-now.getFullYear())*12+(+f.slice(5,7)-1-now.getMonth())}else mo=0}
     if(cur.m==="espera"){box.innerHTML=`<div class="cal_head" hidden></div><div class="cal_wait" role="status"><input type="radio" name="Dia" data-name="Dia" id="d-espera" value="espera" checked hidden><p class="cal_wait-title">Ainda sem datas abertas</p><p class="cal_wait-text">${esc(cur.who)} vem ao centro em dias combinados e ainda não há datas publicadas. Escolha o período que prefere e deixe o seu contacto: ligamos assim que houver uma data.</p></div>`;
       per();A&&gsap.from($(".cal_wait",box),{y:12,autoAlpha:0,duration:.6,ease:"expo.out",clearProps:"all"});Promise.resolve().then(()=>{busy=false});return}
-    mo=Math.max(0,Math.min(2,mo));
+    mo=Math.max(0,Math.min(1,mo));
     const b0=new Date(now.getFullYear(),now.getMonth()+mo,1,12),y=b0.getFullYear(),m=b0.getMonth(),nd=new Date(y,m+1,0).getDate(),lead=(b0.getDay()+6)%7;let cs="";
     for(let i=0;i<lead;i++)cs+='<span class="cal_pad" aria-hidden="true"></span>';
     for(let d=1;d<=nd;d++){const dt=new Date(y,m,d,12),k=K(dt),w=dt.getDay();let cl,dis,lab,cls="";
@@ -70,7 +70,7 @@ if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábad
       else{cl=w===0||window.cmdHol.closed(k);dis=cl||dt<min;lab=`${WD[w]}, ${d} de ${MO[m]}${cl?", encerrado":w===6?", só de manhã":""}`}
       cs+=`<label class="choice${cl?" is-closed":""}${cls}${K(now)===k?" is-today":""}"><input type="radio" name="Dia" data-name="Dia" id="d-${k}" value="${k}" aria-label="${lab}"${sel===k?" checked":""}${dis?" disabled":""}><span><b>${d}</b>${cur.m!=="datas"&&w===6&&!dis?"<i></i>":""}</span></label>`}
     const leg=cur.m==="datas"?`<span><i class="is-slot"></i>Dias com consulta: ${esc(cur.who)}</span>`:'<span><i></i>Sábado: só de manhã</span><span><i class="is-closed"></i>Domingo e feriados: encerrado</span>';
-    box.innerHTML=`<div class="cal_head"><div class="cal_month" aria-live="polite">${MO[m]} ${y}</div><div class="cal_navs"><button type="button" class="cal_nav" data-cal="-1" aria-label="Mês anterior"${mo<=0?" disabled":""}>${ico("M19 12H5M11 6l-6 6 6 6")}</button><button type="button" class="cal_nav" data-cal="1" aria-label="Mês seguinte"${mo>=2?" disabled":""}>${ico("M5 12h14M13 6l6 6-6 6")}</button></div></div><div class="cal_week" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="cal_grid${cur.m==="datas"?" is-dates":""}" role="radiogroup" aria-label="Dia da consulta">${cs}</div><div class="cal_legend">${leg}</div>`;
+    box.innerHTML=`<div class="cal_head"><div class="cal_month" aria-live="polite">${MO[m]} ${y}</div><div class="cal_navs"><button type="button" class="cal_nav" data-cal="-1" aria-label="Mês anterior"${mo<=0?" disabled":""}>${ico("M19 12H5M11 6l-6 6 6 6")}</button><button type="button" class="cal_nav" data-cal="1" aria-label="Mês seguinte"${mo>=1?" disabled":""}>${ico("M5 12h14M13 6l6 6-6 6")}</button></div></div><div class="cal_week" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="cal_grid${cur.m==="datas"?" is-dates":""}" role="radiogroup" aria-label="Dia da consulta">${cs}</div><div class="cal_legend">${leg}</div>`;
     per();dir&&A&&gsap.from($(".cal_grid",box),{x:24*dir,autoAlpha:0,duration:.5,ease:"expo.out",clearProps:"all"});
     Promise.resolve().then(()=>{busy=false})};
   new MutationObserver(()=>{!busy&&!$(".cal_head",box)&&render()}).observe(box,{childList:true});
