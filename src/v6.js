@@ -18,7 +18,7 @@ const refresh=()=>{window.cmdLenis&&cmdLenis.resize();window.ScrollTrigger&&Scro
 $$("[data-filter]").forEach(f0=>{if(f0.closest("[data-cases-index]"))return;
   const kind=f0.dataset.filter,sel=kind==="cases"?".case_tags .tag":".team_esp";
   const items=$$(".w-dyn-item").filter(i=>i.querySelector(sel)&&!i.closest("[data-cases-index],[data-others]"));if(!items.length)return;
-  const keys=i=>$$(sel,i).map(t=>t.textContent.trim()).filter(Boolean),all=new Map();items.forEach(i=>keys(i).forEach(k=>all.set(k,(all.get(k)||0)+1)));
+  const keys=i=>[...new Set($$(sel,i).map(t=>t.textContent.trim()).filter(Boolean))],all=new Map();items.forEach(i=>keys(i).forEach(k=>all.set(k,(all.get(k)||0)+1)));
   /* substitui o grupo por uma cópia limpa: nenhum script antigo fica preso aos botões */
   const f=f0.cloneNode(false);f0.replaceWith(f);if(all.size<2){f.remove();return}
   const btn=(k,l,n,on)=>`<button type="button" class="filter_btn" data-k="${k.replace(/"/g,"&quot;")}" aria-pressed="${on}">${l}<sup>${n}</sup></button>`;
