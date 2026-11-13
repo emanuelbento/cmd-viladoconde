@@ -17,7 +17,7 @@ const refresh=()=>{window.cmdLenis&&cmdLenis.resize();window.ScrollTrigger&&Scro
 /* ---------- Filtros: escolha múltipla, com contagem e "limpar" ---------- */
 $$("[data-filter]").forEach(f0=>{if(f0.closest("[data-cases-index]"))return;
   const kind=f0.dataset.filter,sel=kind==="cases"?".case_tags .tag":".team_esp";
-  const items=$$(".w-dyn-item").filter(i=>i.querySelector(sel)&&!i.closest("[data-cases-index],[data-others]"));if(!items.length)return;
+  const items=$$(".w-dyn-item").filter(i=>!(i.parentElement&&i.parentElement.closest(".w-dyn-item"))&&i.querySelector(sel)&&!i.closest("[data-cases-index],[data-others]"));if(!items.length)return;
   const keys=i=>[...new Set($$(sel,i).map(t=>t.textContent.trim()).filter(Boolean))],all=new Map();items.forEach(i=>keys(i).forEach(k=>all.set(k,(all.get(k)||0)+1)));
   /* substitui o grupo por uma cópia limpa: nenhum script antigo fica preso aos botões */
   const f=f0.cloneNode(false);f0.replaceWith(f);if(all.size<2){f.remove();return}
