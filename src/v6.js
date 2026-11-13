@@ -30,7 +30,9 @@ $$("[data-filter]").forEach(f0=>{if(f0.closest("[data-cases-index]"))return;
     const run=()=>{items.forEach(i=>i.style.display=show.includes(i)?"":"none");A&&gsap.fromTo(show,{y:24,autoAlpha:0},{y:0,autoAlpha:1,duration:.8,stagger:.04,ease:"expo.out",clearProps:"transform,opacity,visibility"});refresh()};
     A?gsap.to(items.filter(i=>i.style.display!=="none"),{autoAlpha:0,y:-8,duration:.22,onComplete:run}):run()};
   f.addEventListener("click",e=>{const c=e.target.closest(".filter_clear");if(c){on.clear();apply();return}
-    const b=e.target.closest(".filter_btn");if(!b)return;const k=b.dataset.k;if(k==="*"){if(!on.size)return;on.clear()}else on.has(k)?on.delete(k):on.add(k);apply()})});
+    const b=e.target.closest(".filter_btn");if(!b)return;const k=b.dataset.k;if(k==="*"){if(!on.size)return;on.clear()}else on.has(k)?on.delete(k):on.add(k);apply()});
+  /* ?area=Nome chega já filtrado, por exemplo a partir da página de especialidade */
+  const qa=new URLSearchParams(location.search).get("area");if(qa){const k=[...all.keys()].find(x=>x.toLowerCase()===qa.toLowerCase());k&&(on.add(k),apply())}});
 
 /* ---------- Equipa: grelha (por defeito) ou lista com retrato que segue o cursor ---------- */
 const holder=$("[data-team-holder]");
