@@ -23,7 +23,7 @@
   let closures=[];
   const reason=k=>{for(const c of closures)if(k>=c.from&&k<=c.to)return c.reason||"encerramento excecional";return null};
   const subs=[];
-  const api={key,isHoliday,reason,closed:k=>isHoliday(k)||!!reason(k),onUpdate:f=>{subs.push(f)}};
+  const api={key,toKey,isHoliday,reason,closed:k=>isHoliday(k)||!!reason(k),onUpdate:f=>{subs.push(f)}};
   window.cmdHol=api;
 
   const SK="cmd-closures",TTL=3e5;

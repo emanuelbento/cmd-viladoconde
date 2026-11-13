@@ -60,3 +60,24 @@ a.is-external-svg:hover svg{transform:rotate(-45deg) translateX(3px)}
 /* Especialidade: casos */
 [data-espd-cases][hidden]{display:none}
 [data-espd-cases] .button{align-self:flex-start;margin-top:.5rem}
+/* Marcação: profissionais com retrato, médico único, dias marcados e lista de espera */
+[data-opt-prof] .choice span:has(.prof_img){flex-direction:row;align-items:center;justify-content:flex-start;gap:.75rem;flex-wrap:wrap}
+.prof_img{flex:none;width:2.6rem;height:2.6rem;border-radius:50%;object-fit:cover;background:var(--_base-color---support--marfim);display:block}
+.prof_img.is-empty{box-shadow:inset 0 0 0 1px rgba(106,68,49,.14)}
+.prof_txt{display:flex;flex-direction:column;gap:.15rem;font-style:normal;min-width:0}
+.prof_note{flex-basis:100%;font-style:normal;font-size:.75rem;font-weight:500;color:var(--_base-color---support--muted)}
+[data-prof-fs].is-single .choice{pointer-events:none}
+[data-prof-fs].is-single .choice span{background:var(--_base-color---support--marfim);box-shadow:none}
+[data-prof-fs].is-single [data-opt-prof]{grid-template-columns:minmax(0,1fr)}
+.cal_grid.is-dates .choice input:disabled+span{background:none;box-shadow:none;color:rgba(106,68,49,.32)}
+.cal_grid.is-dates .choice.is-slot span{box-shadow:inset 0 0 0 1px var(--_base-color---brand--coral);font-weight:600}
+.cal_grid.is-dates .choice.is-slot span::after{content:"";position:absolute;left:50%;bottom:.28rem;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--_base-color---brand--coral)}
+.cal_grid.is-dates .choice.is-slot span{position:relative}
+.cal_grid.is-dates .choice.is-slot input:checked+span::after{background:var(--_base-color---brand--borgonha)}
+.cal_legend i.is-slot{background:var(--_base-color---brand--coral)!important;border-radius:50%;box-shadow:none!important}
+.cal_wait{display:flex;flex-direction:column;gap:.45rem;padding:1.1rem 1.2rem;border-radius:14px;background:var(--_base-color---support--marfim)}
+.cal_wait-title{margin:0;font-family:var(--_typography---font--primary);font-size:1.25rem;line-height:1.1;color:var(--_base-color---brand--tinta)}
+.cal_wait-text{margin:0;font-size:.875rem;line-height:1.5;color:var(--_base-color---support--muted)}
+/* Perfil: próximas datas */
+.med_dates{display:flex;flex-wrap:wrap;gap:.4rem}
+.med_dates span{display:inline-flex;align-items:center;min-height:1.9rem;padding:0 .7rem;border-radius:999px;background:var(--_base-color---support--marfim);font-size:.8125rem;font-weight:600;color:var(--_base-color---brand--tinta)}

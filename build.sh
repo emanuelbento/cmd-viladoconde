@@ -12,8 +12,9 @@ $T src/v8.js -c -m -o dist/_v8.js
 $T src/v11.js -c -m -o dist/_v11.js
 $T src/logo.js -c -m -o dist/_logo.js
 $T src/hours.js -c -m -o dist/_hours.js
+$T src/agenda.js -c -m -o dist/_agenda.js
 w(){ printf 'try{'; cat "$1"; printf '\n}catch(e){console.error("cmd:",e)}\n'; }
-{ cat dist/_pre.js; w dist/_hours.js; w src/core.min.js; w dist/_logo.js; w src/siteui.min.js; w dist/_v3.js; w dist/_v6.js; w dist/_v7.js; w dist/_v8.js; w dist/_v11.js; } > dist/cmd.min.js
+{ cat dist/_pre.js; w dist/_hours.js; w dist/_agenda.js; w src/core.min.js; w dist/_logo.js; w src/siteui.min.js; w dist/_v3.js; w dist/_v6.js; w dist/_v7.js; w dist/_v8.js; w dist/_v11.js; } > dist/cmd.min.js
 $T src/gl.js -c -m -o dist/gl.min.js
 $T src/home.min.js -c -m -o dist/home.min.js
 rm dist/_*.js

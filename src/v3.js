@@ -32,26 +32,54 @@ document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)
   if(a.target&&a.target!=="_self"||a.hasAttribute("download")||a.closest("[data-book],[data-no-curtain]"))return;const u=new URL(a.href,location.href);
   u.origin===location.origin&&(u.pathname!==location.pathname||u.search!==location.search)&&S.play("page")},true);
 
-/* ---------- Marcação: calendário mensal (3 meses, domingo e feriados fechados, sábado só manhã) ---------- */
+/* ---------- Marcação: calendário mensal (3 meses, domingo e feriados fechados, sábado só manhã) ----------
+   Profissionais com agenda "Por datas": o calendário abre só os dias publicados em Datas de consulta.
+   Sem datas abertas, o passo passa a lista de espera: a pessoa escolhe o período e a clínica liga. */
 const box=$("[data-opt-date]");
 if(box){const WD=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],MO=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
   K=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`,
+  esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),
   ico=d=>`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  let mo=0,sel=null,busy=false;
-  const sat=()=>{const c=box.querySelector('input[name="Dia"]:checked'),s=c&&new Date(c.value+"T12:00:00").getDay()===6,t=$("#per-tarde"),m=$("[data-per-manha]"),pt=$("[data-per-tarde]");if(t){t.disabled=!!s;s&&t.checked&&(t.checked=false)}m&&(m.textContent=s?"9h30 às 13h":"9h30 às 12h");pt&&(pt.textContent=s?"Encerrado ao sábado":"14h30 às 19h")};
-  const render=(dir=0)=>{busy=true;const now=new Date;now.setHours(12,0,0,0);const min=new Date(now);min.setDate(min.getDate()+1);mo=Math.max(0,Math.min(2,mo));
+  const form=box.closest("form")||document;
+  let mo=0,sel=null,busy=false,lastKey="",cur={m:"fixa"};
+  const mode=()=>{const ag=window.cmdAgenda;if(!ag||!ag.profs||!ag.profs.length)return{m:"fixa"};
+    const ec=form.querySelector('input[name="Especialidade"]:checked'),esp=ec?ec.dataset.slug:"",pc=form.querySelector('input[name="Profissional"]:checked'),ps=pc&&pc.dataset.slug;
+    let list;if(ps){const p=ag.profs.find(x=>x.slug===ps);if(!p||!p.datas)return{m:"fixa"};list=[p]}
+    else{list=ag.profs.filter(p=>p.esp===esp);if(!list.length||!list.every(p=>p.datas))return{m:"fixa"}}
+    const now=new Date;now.setHours(12,0,0,0);const t=new Date(now);t.setDate(t.getDate()+1);const min=K(t),max=K(new Date(now.getFullYear(),now.getMonth()+3,0,12));
+    const slots=new Map;ag.dates.forEach(d=>{if(d.date<min||d.date>max||!list.some(p=>p.slug===d.prof))return;const o=slots.get(d.date)||{manha:false,tarde:false};o.manha=o.manha||d.manha;o.tarde=o.tarde||d.tarde;slots.set(d.date,o)});
+    return{m:slots.size?"datas":"espera",slots,who:list.length===1?list[0].nome:"A equipa desta área",key:ps||esp}};
+  const per=()=>{const c=box.querySelector('input[name="Dia"]:checked'),mn=$("#per-manha"),tr=$("#per-tarde"),lm=$("[data-per-manha]"),lt=$("[data-per-tarde]");if(!tr)return;
+    const off=(i,v)=>{if(!i)return;i.disabled=v;v&&i.checked&&(i.checked=false)};
+    if(cur.m==="espera"){off(mn,false);off(tr,false);lm&&(lm.textContent="Prefere de manhã");lt&&(lt.textContent="Prefere à tarde");return}
+    const v=c&&c.value,s=!!v&&v!=="espera"&&new Date(v+"T12:00:00").getDay()===6;
+    if(cur.m==="datas"&&v&&cur.slots.has(v)){const o=cur.slots.get(v);off(mn,!o.manha);off(tr,!o.tarde);
+      lm&&(lm.textContent=o.manha?(s?"9h30 às 13h":"9h30 às 12h"):"Sem consulta de manhã");lt&&(lt.textContent=o.tarde?"14h30 às 19h":"Sem consulta à tarde");return}
+    off(mn,false);off(tr,s);lm&&(lm.textContent=s?"9h30 às 13h":"9h30 às 12h");lt&&(lt.textContent=s?"Encerrado ao sábado":"14h30 às 19h")};
+  window.cmdApplyPer=per;
+  const render=(dir=0)=>{busy=true;cur=mode();const now=new Date;now.setHours(12,0,0,0);const min=new Date(now);min.setDate(min.getDate()+1);
+    const nk=cur.m+":"+(cur.key||"");if(nk!==lastKey){lastKey=nk;sel=null;if(cur.m==="datas"){const f=[...cur.slots.keys()].sort()[0];mo=(+f.slice(0,4)-now.getFullYear())*12+(+f.slice(5,7)-1-now.getMonth())}else mo=0}
+    if(cur.m==="espera"){box.innerHTML=`<div class="cal_head" hidden></div><div class="cal_wait" role="status"><input type="radio" name="Dia" data-name="Dia" id="d-espera" value="espera" checked hidden><p class="cal_wait-title">Ainda sem datas abertas</p><p class="cal_wait-text">${esc(cur.who)} vem ao centro em dias combinados e ainda não há datas publicadas. Escolha o período que prefere e deixe o seu contacto: ligamos assim que houver uma data.</p></div>`;
+      per();A&&gsap.from($(".cal_wait",box),{y:12,autoAlpha:0,duration:.6,ease:"expo.out",clearProps:"all"});Promise.resolve().then(()=>{busy=false});return}
+    mo=Math.max(0,Math.min(2,mo));
     const b0=new Date(now.getFullYear(),now.getMonth()+mo,1,12),y=b0.getFullYear(),m=b0.getMonth(),nd=new Date(y,m+1,0).getDate(),lead=(b0.getDay()+6)%7;let cs="";
     for(let i=0;i<lead;i++)cs+='<span class="cal_pad" aria-hidden="true"></span>';
-    for(let d=1;d<=nd;d++){const dt=new Date(y,m,d,12),k=K(dt),w=dt.getDay(),cl=w===0||window.cmdHol.closed(k),dis=cl||dt<min,lab=`${WD[w]}, ${d} de ${MO[m]}${cl?", encerrado":w===6?", só de manhã":""}`;
-      cs+=`<label class="choice${cl?" is-closed":""}${K(now)===k?" is-today":""}"><input type="radio" name="Dia" data-name="Dia" id="d-${k}" value="${k}" aria-label="${lab}"${sel===k?" checked":""}${dis?" disabled":""}><span><b>${d}</b>${w===6&&!dis?"<i></i>":""}</span></label>`}
-    box.innerHTML=`<div class="cal_head"><div class="cal_month" aria-live="polite">${MO[m]} ${y}</div><div class="cal_navs"><button type="button" class="cal_nav" data-cal="-1" aria-label="Mês anterior"${mo<=0?" disabled":""}>${ico("M19 12H5M11 6l-6 6 6 6")}</button><button type="button" class="cal_nav" data-cal="1" aria-label="Mês seguinte"${mo>=2?" disabled":""}>${ico("M5 12h14M13 6l6 6-6 6")}</button></div></div><div class="cal_week" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="cal_grid" role="radiogroup" aria-label="Dia da consulta">${cs}</div><div class="cal_legend"><span><i></i>Sábado: só de manhã</span><span><i class="is-closed"></i>Domingo e feriados: encerrado</span></div>`;
-    sat();dir&&A&&gsap.from($(".cal_grid",box),{x:24*dir,autoAlpha:0,duration:.5,ease:"expo.out",clearProps:"all"});
+    for(let d=1;d<=nd;d++){const dt=new Date(y,m,d,12),k=K(dt),w=dt.getDay();let cl,dis,lab,cls="";
+      if(cur.m==="datas"){const o=cur.slots.get(k);dis=!o||dt<min;cl=!o&&(w===0||window.cmdHol.closed(k));o&&!dis&&(cls=" is-slot");
+        lab=`${WD[w]}, ${d} de ${MO[m]}${o&&!dis?`, com consulta${o.manha&&!o.tarde?" de manhã":o.tarde&&!o.manha?" à tarde":""}`:", sem consulta"}`}
+      else{cl=w===0||window.cmdHol.closed(k);dis=cl||dt<min;lab=`${WD[w]}, ${d} de ${MO[m]}${cl?", encerrado":w===6?", só de manhã":""}`}
+      cs+=`<label class="choice${cl?" is-closed":""}${cls}${K(now)===k?" is-today":""}"><input type="radio" name="Dia" data-name="Dia" id="d-${k}" value="${k}" aria-label="${lab}"${sel===k?" checked":""}${dis?" disabled":""}><span><b>${d}</b>${cur.m!=="datas"&&w===6&&!dis?"<i></i>":""}</span></label>`}
+    const leg=cur.m==="datas"?`<span><i class="is-slot"></i>Dias com consulta: ${esc(cur.who)}</span>`:'<span><i></i>Sábado: só de manhã</span><span><i class="is-closed"></i>Domingo e feriados: encerrado</span>';
+    box.innerHTML=`<div class="cal_head"><div class="cal_month" aria-live="polite">${MO[m]} ${y}</div><div class="cal_navs"><button type="button" class="cal_nav" data-cal="-1" aria-label="Mês anterior"${mo<=0?" disabled":""}>${ico("M19 12H5M11 6l-6 6 6 6")}</button><button type="button" class="cal_nav" data-cal="1" aria-label="Mês seguinte"${mo>=2?" disabled":""}>${ico("M5 12h14M13 6l6 6-6 6")}</button></div></div><div class="cal_week" aria-hidden="true"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="cal_grid${cur.m==="datas"?" is-dates":""}" role="radiogroup" aria-label="Dia da consulta">${cs}</div><div class="cal_legend">${leg}</div>`;
+    per();dir&&A&&gsap.from($(".cal_grid",box),{x:24*dir,autoAlpha:0,duration:.5,ease:"expo.out",clearProps:"all"});
     Promise.resolve().then(()=>{busy=false})};
   new MutationObserver(()=>{!busy&&!$(".cal_head",box)&&render()}).observe(box,{childList:true});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-cal]");if(!b||b.disabled)return;e.preventDefault();mo+=+b.dataset.cal;render(+b.dataset.cal)});
-  box.addEventListener("change",e=>{e.target.name==="Dia"&&(sel=e.target.value,sat())});
+  box.addEventListener("change",e=>{e.target.name==="Dia"&&(sel=e.target.value,per())});
+  form.addEventListener("change",e=>{e.target.name==="Profissional"&&$(".cal_head",box)&&render()});
   box.children.length&&render();
-  window.cmdHol.onUpdate(()=>{$(".cal_head",box)&&render()})}
+  window.cmdHol.onUpdate(()=>{$(".cal_head",box)&&render()});
+  window.cmdAgenda&&window.cmdAgenda.onUpdate(()=>{$(".cal_head",box)&&render()})}
 
 /* ---------- Títulos: o peso cresce à volta do cursor, como na hero ---------- */
 const armWt=()=>{if(!FINE||!A||!window.SplitText||!window.cmdWt)return;
