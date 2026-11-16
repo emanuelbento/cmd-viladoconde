@@ -9,6 +9,15 @@ let svgs={},imgs={},seq=0,font=null;
 const id=p=>p+(++seq);
 function bmFont(){if(font)return font;return null}
 function cumOp(el,stop){let o=1;for(let e=el;e&&e!==stop&&e.nodeType===1;e=e.parentElement)o*=+getComputedStyle(e).opacity;return o}
+function splitTop(s){const out=[];let d=0,cur='';for(const ch of s){if(ch==='(')d++;if(ch===')')d--;if(ch===','&&d===0){out.push(cur.trim());cur=''}else cur+=ch}if(cur.trim())out.push(cur.trim());return out}
+function rasterGrad(bi,w,h){const m=bi.match(/^(repeating-)?linear-gradient\((.*)\)$/);if(!m)return null;const rep=!!m[1];const parts=splitTop(m[2]);let ang=180;if(/deg$/.test(parts[0])){ang=parseFloat(parts.shift())}else if(/^to /.test(parts[0])){const t=parts.shift();ang={'to top':0,'to right':90,'to bottom':180,'to left':270}[t]??180}
+  const a=ang*Math.PI/180,dx=Math.sin(a),dy=-Math.cos(a),L=Math.abs(w*dx)+Math.abs(h*dy);
+  let stops=parts.map(p=>{const cm=p.match(/^(rgba?\([^)]+\)|#[0-9a-f]+|[a-z]+\([^)]*\)|[a-z]+)\s*(.*)$/i);const c=cm?col(cm[1]):null;const pos=cm&&cm[2]?(/%/.test(cm[2])?L*parseFloat(cm[2])/100:px(cm[2])):null;return{c:c||[0,0,0,0],p:pos}});
+  stops.forEach((s,i)=>{if(s.p===null)s.p=i===0?0:(i===stops.length-1?(rep?stops[i-1].p:L):null)});for(let i=1;i<stops.length;i++)if(stops[i].p===null){let j=i;while(stops[j].p===null)j++;for(let k=i;k<j;k++)stops[k].p=stops[i-1].p+(stops[j].p-stops[i-1].p)*(k-i+1)/(j-i+1)}
+  const S=2,cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(w*S));cv.height=Math.max(1,Math.round(h*S));const x=cv.getContext('2d');const cx=w/2,cy=h/2;const g=x.createLinearGradient((cx-dx*L/2)*S,(cy-dy*L/2)*S,(cx+dx*L/2)*S,(cy+dy*L/2)*S);
+  const rgba=c=>`rgba(${c[0]},${c[1]},${c[2]},${c[3]})`;const add=(pos,c)=>{const t=Math.min(1,Math.max(0,pos/L));g.addColorStop(t,rgba(c))};
+  if(rep){const P0=stops[0].p,P=stops[stops.length-1].p-P0;if(P<=0)return null;for(let o=P0;o<L;o+=P)for(const s of stops)add(o+s.p-P0,s.c)}else for(const s of stops)add(s.p,s.c);
+  x.fillStyle=g;x.fillRect(0,0,cv.width,cv.height);return cv.toDataURL('image/png')}
 function boxProps(el,cs){
   const o={};const bg=col(cs.backgroundColor);if(bg)o.bg=bg;
   const bi=cs.backgroundImage;if(bi&&bi!=='none'){const u=bi.match(/url\("?([^")]+)"?\)/);if(u){o.bgimg=u[1]}else if(/gradient/.test(bi)){o.grad=bi.slice(0,400)}}
@@ -113,7 +122,8 @@ function walk(el,ctx,out,consumed){
     out.push(F);return}
   if(vis){const bp=boxProps(el,cs);if(tag!=='img'&&(bp.bg||bp.bd||bp.sh||bp.ish||bp.bgimg)&&r.width>0.5&&r.height>0.5){const n={k:'R',nm:(el.className.toString().split(' ')[0]||tag),x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,...bp};if(bp.bgimg){const iid=id('i');imgs[iid]=bp.bgimg;n.img=iid;delete n.bgimg}out.push(n)}
     if(bp.grad&&r.width>0.5){const cs2=bp.grad.match(/rgba?\([^)]+\)/g)||[];if(cs2.length&&cs2.every(x=>x===cs2[0])){const c=col(cs2[0]);const sz=cs.backgroundSize.split(' '),ps=cs.backgroundPosition.split(' ');const dim=(v,full)=>/%/.test(v)?full*px(v)/100:(v==='auto'||!v?full:px(v));const gw=dim(sz[0],r.width),gh=dim(sz[1]||'auto',r.height);const pos=(v,full,g)=>/%/.test(v)?(full-g)*px(v)/100:px(v);const gx=pos(ps[0]||'0',r.width,gw),gy=pos(ps[1]||'0',r.height,gh);
-      if(c)out.push({k:'R',nm:'Sublinhado',x:R(r.left+gx-ctx.ox),y:R(r.top+gy-ctx.oy),w:R(gw),h:Math.max(R(gh),0.5),op:relOp,bg:c})}}}
+      if(c)out.push({k:'R',nm:'Sublinhado',x:R(r.left+gx-ctx.ox),y:R(r.top+gy-ctx.oy),w:R(gw),h:Math.max(R(gh),0.5),op:relOp,bg:c})}
+      else{try{const du=rasterGrad(cs.backgroundImage.split(/,\s*(?=(?:repeating-)?linear-gradient)/)[0],r.width,r.height);if(du){const iid=id('i');imgs[iid]=du;out.push({k:'R',nm:'Textura',x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,rad:bp.rad,img:iid})}}catch(e){}}}}
   inner(el,cs,ctx,out,consumed,relOp,r,vis)}
 function inner(el,cs,ctx,out,consumed,relOp,r,vis=true){
   const tag=el.tagName.toLowerCase();const ox=ctx.ox,oy=ctx.oy;
