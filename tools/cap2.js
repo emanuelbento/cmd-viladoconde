@@ -140,7 +140,8 @@ function nodeOf(el,ctx,consumed){
   if(vis&&bp.grad){const tmp=[];gradOut(el,cs,{left:ur.left,top:ur.top,width:w,height:h},ur.left,ur.top,1,bp,tmp);tmp.forEach(t=>{t.abs=true;F.ch.push(t)})}
   // ordem: texto direto na posição do primeiro nó de texto
   let textPlaced=false;const tnode=txt?textNode2(el,ur.left,ur.top,consumed,1,false):null;
-  for(const n of el.childNodes){if(n.nodeType===3&&n.textContent.trim()&&tnode&&!textPlaced){F.ch.push(tnode);textPlaced=true}
+  const flat=e=>{const o=[];for(const n of e.childNodes){if(n.nodeType===1&&getComputedStyle(n).display==='contents')o.push(...flat(n));else o.push(n)}return o};
+  for(const n of flat(el)){if(n.nodeType===3&&n.textContent.trim()&&tnode&&!textPlaced){F.ch.push(tnode);textPlaced=true}
     if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c)F.ch.push(c)}}
   if(tnode&&!textPlaced)F.ch.push(tnode);
   if(saved!==null)el.style.cssText=saved;
