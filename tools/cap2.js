@@ -146,12 +146,15 @@ function nodeOf(el,ctx,consumed){
   let textPlaced=false;const tnode=txt?textNode2(el,ur.left+iL,ur.top+iT,consumed,1,false):null;
   const flat=e=>{const o=[];for(const n of e.childNodes){if(n.nodeType===1&&getComputedStyle(n).display==='contents')o.push(...flat(n));else o.push(n)}return o};
   for(const n of flat(el)){if(n.nodeType===3&&n.textContent.trim()&&tnode&&!textPlaced){F.ch.push(tnode);textPlaced=true}
-    if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c){const ccs=getComputedStyle(n);const zi=parseInt(ccs.zIndex);const ab=/absolute|fixed/.test(ccs.position);c.z=!ab?1:(isNaN(zi)||zi===0?2:(zi<0?0:3+zi));F.ch.push(c)}}}
+    if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c){const ccs=getComputedStyle(n);const zi=parseInt(ccs.zIndex);const pos=ccs.position!=='static';c.z=!pos?1:(isNaN(zi)||zi===0?2:(zi<0?0:3+zi));F.ch.push(c)}}}
   if(tnode&&!textPlaced)F.ch.push(tnode);
-  F.ch.forEach((c,i)=>{c._i=i});F.ch.sort((a,b)=>((a.z??1)-(b.z??1))||(a._i-b._i));F.ch.forEach(c=>{delete c._i});
   if(saved!==null)el.style.cssText=saved;
   // ordenar por posição de fluxo não muda a ordem DOM; detetar auto layout
   if(!['grid','inline-grid'].includes(cs.display)||true)alDetect(F);
+  F.ch.forEach((c,i)=>{c._i=i});const zq=c=>c.z??1;
+  if(F.al){const flow=F.ch.filter(c=>!c.abs&&!(c.rot&&Math.abs(c.rot)>0.2));const absC=F.ch.filter(c=>!flow.includes(c));absC.sort((a,b)=>(zq(a)-zq(b))||(a._i-b._i));const lo=absC.filter(c=>zq(c)<1),hi=absC.filter(c=>zq(c)>=1);F.ch=[...lo,...flow,...hi];const top=flow.reduce((m,c)=>zq(c)>zq(m)?c:m,flow[0]);if(top&&flow.indexOf(top)===0&&zq(top)>2&&flow.length>1)F.zrev=1}
+  else F.ch.sort((a,b)=>(zq(a)-zq(b))||(a._i-b._i));
+  F.ch.forEach(c=>{delete c._i});
   return F}
 function materialize(doc){
   const w=doc.defaultView;if(!doc.getElementById('__matcss')){const s=doc.createElement('style');s.id='__matcss';s.textContent='.__mb::before{content:none!important}.__ma::after{content:none!important}';doc.head.appendChild(s)}
