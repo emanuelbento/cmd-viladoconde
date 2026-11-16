@@ -69,7 +69,7 @@ function textNode(el,ox,oy,consumed,relOp){
   let lh=st0.lh==='normal'?(lhs||L[0].h):px(st0.lh);if(lhs&&Math.abs(lhs-lh)>1)lh=lhs;
   const al=ecs.textAlign;const pr=el.getBoundingClientRect();
   const n={k:'T',x:R(minX-ox),y:R(L[0].y-(lh-L[0].h)/2-oy),s,lh:R(lh*100)/100,segs,st:styles.map(x=>({f:x.inter?'Inter':x.st.fam,wt:x.st.wt,sz:x.st.sz,c:x.st.c,ls:x.st.ls,tt:x.st.tt,td:x.st.td,it:x.st.it})),op:relOp};
-  if((al==='center'||al==='right'||al==='end')&&L.length>=1){const pl=px(ecs.paddingLeft),prr=px(ecs.paddingRight);n.x=R(pr.left+pl-ox);n.w=R(pr.width-pl-prr);n.al=al==='end'?'right':al}
+  if((al==='center'||al==='right'||al==='end')&&L.length>1){n.al=al==='end'?'right':al}
   return n}
 function R2(v){return Math.round(v*10)/10}
 function svgNode(el,ox,oy,relOp){
@@ -105,7 +105,9 @@ function walk(el,ctx,out,consumed){
     inner(el,cs,sub,F.ch,consumed,1,ur);
     if(saved!==null)el.style.cssText=saved;
     out.push(F);return}
-  if(vis){const bp=boxProps(el,cs);if(tag!=='img'&&(bp.bg||bp.bd||bp.sh||bp.grad||bp.bgimg)&&r.width>0.5&&r.height>0.5){const n={k:'R',nm:(el.className.toString().split(' ')[0]||tag),x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,...bp};if(bp.bgimg){const iid=id('i');imgs[iid]=bp.bgimg;n.img=iid;delete n.bgimg}out.push(n)}}
+  if(vis){const bp=boxProps(el,cs);if(tag!=='img'&&(bp.bg||bp.bd||bp.sh||bp.ish||bp.bgimg)&&r.width>0.5&&r.height>0.5){const n={k:'R',nm:(el.className.toString().split(' ')[0]||tag),x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,...bp};if(bp.bgimg){const iid=id('i');imgs[iid]=bp.bgimg;n.img=iid;delete n.bgimg}out.push(n)}
+    if(bp.grad&&r.width>0.5){const cs2=bp.grad.match(/rgba?\([^)]+\)/g)||[];if(cs2.length&&cs2.every(x=>x===cs2[0])){const c=col(cs2[0]);const sz=cs.backgroundSize.split(' '),ps=cs.backgroundPosition.split(' ');const dim=(v,full)=>/%/.test(v)?full*px(v)/100:(v==='auto'||!v?full:px(v));const gw=dim(sz[0],r.width),gh=dim(sz[1]||'auto',r.height);const pos=(v,full,g)=>/%/.test(v)?(full-g)*px(v)/100:px(v);const gx=pos(ps[0]||'0',r.width,gw),gy=pos(ps[1]||'0',r.height,gh);
+      if(c)out.push({k:'R',nm:'Sublinhado',x:R(r.left+gx-ctx.ox),y:R(r.top+gy-ctx.oy),w:R(gw),h:Math.max(R(gh),0.5),op:relOp,bg:c})}}}
   inner(el,cs,ctx,out,consumed,relOp,r,vis)}
 function inner(el,cs,ctx,out,consumed,relOp,r,vis=true){
   const tag=el.tagName.toLowerCase();const ox=ctx.ox,oy=ctx.oy;
