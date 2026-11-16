@@ -114,7 +114,7 @@ function alDetect(F){
   // padding: V -> pa=top, pb=bottom, c1=left,c2=right ; H -> pa=left,pb=right,c1=top,c2=bottom
   F.al=r;}
 function nodeOf(el,ctx,consumed){
-  if(el.nodeType!==1)return null;const cs=getComputedStyle(el);if(cs.display==='none')return null;
+  if(el.nodeType!==1||el.classList.contains('w-webflow-badge')||el.tagName==='SCRIPT'||el.tagName==='STYLE')return null;const cs=getComputedStyle(el);if(cs.display==='none')return null;
   if(!ctx.allowFixed&&cs.position==='fixed')return null;
   const op=ctx.op*(+cs.opacity);if(op<0.02)return null;
   const r=el.getBoundingClientRect();
