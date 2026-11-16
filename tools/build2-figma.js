@@ -20,7 +20,7 @@ async function mk(n){
   if(n.k==='F'){const f=figma.createFrame();f.name=n.nm||'Frame';f.resize(Math.max(n.w,0.01),Math.max(n.h,0.01));box(f,n);f.clipsContent=!!n.clip;if(n.img)IMG.push([f.id,n.img]);
     const kids=[];for(const c of n.ch){const k=await mk(c);if(k){f.appendChild(k);kids.push([k,c])}}
     if(n.al){const a=n.al;f.layoutMode=a.mode==='V'?'VERTICAL':'HORIZONTAL';if(a.wrap){f.layoutWrap='WRAP';f.counterAxisSpacing=a.cgap}f.itemSpacing=a.gap;f.primaryAxisAlignItems='MIN';f.counterAxisAlignItems=a.ca;
-      if(a.mode==='V'){f.paddingTop=a.pa;f.paddingBottom=a.pb;f.paddingLeft=a.c1;f.paddingRight=a.c2}else{f.paddingLeft=a.pa;f.paddingRight=a.pb;f.paddingTop=a.c1;f.paddingBottom=a.c2}
+      const P0=v=>Math.max(0,v||0);if(a.mode==='V'){f.paddingTop=P0(a.pa);f.paddingBottom=P0(a.pb);f.paddingLeft=P0(a.c1);f.paddingRight=P0(a.c2)}else{f.paddingLeft=P0(a.pa);f.paddingRight=P0(a.pb);f.paddingTop=P0(a.c1);f.paddingBottom=P0(a.c2)}
       f.primaryAxisSizingMode='FIXED';f.counterAxisSizingMode='FIXED';f.resize(Math.max(n.w,0.01),Math.max(n.h,0.01));
       for(const [k,c] of kids){if(c.abs||(c.rot&&Math.abs(c.rot)>0.2)){k.layoutPositioning='ABSOLUTE';if(c.rot&&Math.abs(c.rot)>0.2)rotate(k,c);else{k.x=c.x;k.y=c.y}}}
       if(!a.wrap&&a.mode==='V'){f.primaryAxisSizingMode='AUTO'}else if(!a.wrap&&a.mode==='H'){/* largura fixa */}else{f.counterAxisSizingMode='AUTO'}

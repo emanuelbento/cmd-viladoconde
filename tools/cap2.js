@@ -134,12 +134,13 @@ function nodeOf(el,ctx,consumed){
   // só texto, sem caixa: devolve o texto
   if(txt&&!paint&&!isRot&&kidsEl.every(k=>{const d=getComputedStyle(k).display;return d==='none'||(d==='inline'&&k.tagName!=='IMG'&&k.tagName.toLowerCase()!=='svg'&&getComputedStyle(k).position!=='absolute')||k.tagName==='BR'})){const t=textNode2(el,ox,oy,consumed,op,true);if(t){t.abs=abs;t.op=ownOp;return t}}
   const clip=/hidden|clip/.test(cs.overflow+cs.overflowX+cs.overflowY);
-  const F={k:'F',nm:cls(el),x:R(nx-ox),y:R(ny-oy),w:R(w),h:R(h),rot:isRot?+rot.toFixed(2):0,clip,op:ownOp,abs,ch:[]};
+  let iL=0,iT=0,iR=0,iB=0,cp=false;const icp=(cs.clipPath||'').match(/^inset\(([^)]+)\)/);if(icp&&!isRot){const v=icp[1].split(/\s+/).filter(x=>!/round/.test(x)).slice(0,4);const pv=(x,full)=>/%/.test(x)?full*px(x)/100:px(x);const a=v.length===1?[v[0],v[0],v[0],v[0]]:v.length===2?[v[0],v[1],v[0],v[1]]:v.length===3?[v[0],v[1],v[2],v[1]]:v;iT=pv(a[0],h);iR=pv(a[1],w);iB=pv(a[2],h);iL=pv(a[3],w);cp=iT+iR+iB+iL>0.5;if(w-iL-iR<0.5||h-iT-iB<0.5)return null}
+  const F={k:'F',nm:cls(el),x:R(nx-ox+iL),y:R(ny-oy+iT),w:R(w-iL-iR),h:R(h-iT-iB),rot:isRot?+rot.toFixed(2):0,clip:clip||cp,op:ownOp,abs,ch:[]};
   if(vis){Object.assign(F,bp);delete F.grad;if(F.bgimg){const iid=id('i');imgs[iid]=F.bgimg;F.img=iid;delete F.bgimg}}
-  const sub={...ctx,ox:ur.left,oy:ur.top,op:1,clip:clip?{l:ur.left,r:ur.right,t:ur.top,b:ur.bottom}:ctx.clip};
-  if(vis&&bp.grad){const tmp=[];gradOut(el,cs,{left:ur.left,top:ur.top,width:w,height:h},ur.left,ur.top,1,bp,tmp);tmp.forEach(t=>{t.abs=true;F.ch.push(t)})}
+  const sub={...ctx,ox:ur.left+iL,oy:ur.top+iT,op:1,clip:(clip||cp)?{l:ur.left+iL,r:ur.right-iR,t:ur.top+iT,b:ur.bottom-iB}:ctx.clip};
+  if(vis&&bp.grad){const tmp=[];gradOut(el,cs,{left:ur.left,top:ur.top,width:w,height:h},ur.left+iL,ur.top+iT,1,bp,tmp);tmp.forEach(t=>{t.abs=true;F.ch.push(t)})}
   // ordem: texto direto na posição do primeiro nó de texto
-  let textPlaced=false;const tnode=txt?textNode2(el,ur.left,ur.top,consumed,1,false):null;
+  let textPlaced=false;const tnode=txt?textNode2(el,ur.left+iL,ur.top+iT,consumed,1,false):null;
   const flat=e=>{const o=[];for(const n of e.childNodes){if(n.nodeType===1&&getComputedStyle(n).display==='contents')o.push(...flat(n));else o.push(n)}return o};
   for(const n of flat(el)){if(n.nodeType===3&&n.textContent.trim()&&tnode&&!textPlaced){F.ch.push(tnode);textPlaced=true}
     if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c)F.ch.push(c)}}
@@ -157,8 +158,10 @@ function materialize(doc){
 return{
   svgs:()=>svgs,imgs:()=>imgs,reset(){svgs={};imgs={};CR.clear()},
   materialize:()=>materialize(W().document),
-  cap(root,{allowFixed=false,name=null,originEl=null}={}){CR.clear();const r=(originEl||root).getBoundingClientRect();const consumed=new Set();
-    const n=nodeOf(root,{ox:r.left,oy:r.top,op:1,clip:{l:r.left,r:r.right,t:r.top,b:r.bottom},allowFixed},consumed);if(n&&name)n.nm=name;if(n){n.x=0;n.y=0;n.abs=false}return n},
+  cap(root,{allowFixed=false,name=null,originEl=null,region=null}={}){CR.clear();const r0=(originEl||root).getBoundingClientRect();const r=region?{left:region.x,top:region.y,right:region.x+region.w,bottom:region.y+region.h}:r0;const consumed=new Set();
+    const n=nodeOf(root,{ox:r.left,oy:r.top,op:1,clip:{l:r.left,r:r.right,t:r.top,b:r.bottom},allowFixed},consumed);if(n&&name)n.nm=name;
+    if(n&&region){const F={k:'F',nm:name||'Região',x:0,y:0,w:region.w,h:region.h,clip:true,op:1,ch:[n],bg:n.bg};n.bg=null;n.abs=true;return F}
+    if(n){n.x=0;n.y=0;n.abs=false}return n},
   sleep,W
 }})();
 'ok'
