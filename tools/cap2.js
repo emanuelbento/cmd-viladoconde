@@ -152,7 +152,7 @@ function nodeOf(el,ctx,consumed){
   // ordenar por posição de fluxo não muda a ordem DOM; detetar auto layout
   if(!['grid','inline-grid'].includes(cs.display)||true)alDetect(F);
   F.ch.forEach((c,i)=>{c._i=i});const zq=c=>c.z??1;
-  if(F.al){const flow=F.ch.filter(c=>!c.abs&&!(c.rot&&Math.abs(c.rot)>0.2));const absC=F.ch.filter(c=>!flow.includes(c));absC.sort((a,b)=>(zq(a)-zq(b))||(a._i-b._i));const lo=absC.filter(c=>zq(c)<1),hi=absC.filter(c=>zq(c)>=1);F.ch=[...lo,...flow,...hi];const top=flow.reduce((m,c)=>zq(c)>zq(m)?c:m,flow[0]);if(top&&flow.indexOf(top)===0&&zq(top)>2&&flow.length>1)F.zrev=1}
+  if(F.al){const flow=F.ch.filter(c=>!c.abs&&!(c.rot&&Math.abs(c.rot)>0.2));const absC=F.ch.filter(c=>!flow.includes(c));absC.sort((a,b)=>(zq(a)-zq(b))||(a._i-b._i));const res=[...flow];for(const a of absC){let at=res.length;for(let j=0;j<res.length;j++){const r=res[j];if(zq(r)>zq(a)||(zq(r)===zq(a)&&r._i>a._i)){at=j;break}}res.splice(at,0,a)}F.ch=res;const top=flow.reduce((m,c)=>zq(c)>zq(m)?c:m,flow[0]);if(top&&flow.indexOf(top)===0&&zq(top)>2&&flow.length>1)F.zrev=1}
   else F.ch.sort((a,b)=>(zq(a)-zq(b))||(a._i-b._i));
   F.ch.forEach(c=>{delete c._i});
   return F}
