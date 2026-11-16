@@ -97,6 +97,9 @@ function svgNode(el,ox,oy,relOp){
   cl.setAttribute('width',R(r.width));cl.setAttribute('height',R(r.height));
   let h=cl.outerHTML.replace(/currentColor/g,csr.color);
   const sid=id('s');svgs[sid]=h;return{k:'S',id:sid,x:R(r.left-ox),y:R(r.top-oy),w:R(r.width),h:R(r.height),op:relOp}}
+function gradOut(el,cs,r,ox,oy,relOp,bp,out){if(!(bp.grad&&r.width>0.5))return;const cs2=bp.grad.match(/rgba?\([^)]+\)/g)||[];if(cs2.length&&cs2.every(x=>x===cs2[0])){const c=col(cs2[0]);const sz=cs.backgroundSize.split(' '),ps=cs.backgroundPosition.split(' ');const dim=(v,full)=>/%/.test(v)?full*px(v)/100:(v==='auto'||!v?full:px(v));const gw=dim(sz[0],r.width),gh=dim(sz[1]||'auto',r.height);const pos=(v,full,g)=>/%/.test(v)?(full-g)*px(v)/100:px(v);const gx=pos(ps[0]||'0',r.width,gw),gy=pos(ps[1]||'0',r.height,gh);
+      if(c)out.push({k:'R',nm:'Sublinhado',x:R(r.left+gx-ox),y:R(r.top+gy-oy),w:R(gw),h:Math.max(R(gh),0.5),op:relOp,bg:c})}
+      else{try{const du=rasterGrad(cs.backgroundImage.split(/,\s*(?=(?:repeating-)?linear-gradient)/)[0],r.width,r.height);if(du){const iid=id('i');imgs[iid]=du;out.push({k:'R',nm:'Textura',x:R(r.left-ox),y:R(r.top-oy),w:R(r.width),h:R(r.height),op:relOp,rad:bp.rad,img:iid})}}catch(e){}}}
 function walk(el,ctx,out,consumed){
   if(el.nodeType!==1||el.id==='__x')return;
   const cs=getComputedStyle(el);if(cs.display==='none')return;
@@ -115,15 +118,13 @@ function walk(el,ctx,out,consumed){
     if(Math.abs(rot)>0.2){saved=el.style.cssText;el.style.setProperty('transition','none','important');el.style.setProperty('transform','none','important');ur=el.getBoundingClientRect()}
     const w=ur.width,h=ur.height;const nx=Math.abs(rot)>0.2?cx-w/2:r.left,ny=Math.abs(rot)>0.2?cy-h/2:r.top;
     const F={k:'F',nm:(el.className.toString().split(' ')[0]||tag),x:R(nx-ctx.ox),y:R(ny-ctx.oy),w:R(w),h:R(h),rot:+rot.toFixed(2),clip:clipper,op:+(+cs.opacity).toFixed(3),ch:[]};
-    if(vis)Object.assign(F,boxProps(el,cs));
+    if(vis){const bp=boxProps(el,cs);Object.assign(F,bp);delete F.grad;if(F.bgimg){const iid=id('i');imgs[iid]=F.bgimg;F.img=iid;delete F.bgimg}gradOut(el,cs,{left:0,top:0,width:w,height:h},0,0,1,bp,F.ch)}
     const sub={...ctx,ox:ur.left,oy:ur.top,op:1,clip:clipper?{l:ur.left,r:ur.right,t:ur.top,b:ur.bottom}:{l:-1e5,r:1e5,t:-1e5,b:1e5}};
     inner(el,cs,sub,F.ch,consumed,1,ur);
     if(saved!==null)el.style.cssText=saved;
     out.push(F);return}
   if(vis){const bp=boxProps(el,cs);if(tag!=='img'&&(bp.bg||bp.bd||bp.sh||bp.ish||bp.bgimg)&&r.width>0.5&&r.height>0.5){const n={k:'R',nm:(el.className.toString().split(' ')[0]||tag),x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,...bp};if(bp.bgimg){const iid=id('i');imgs[iid]=bp.bgimg;n.img=iid;delete n.bgimg}out.push(n)}
-    if(bp.grad&&r.width>0.5){const cs2=bp.grad.match(/rgba?\([^)]+\)/g)||[];if(cs2.length&&cs2.every(x=>x===cs2[0])){const c=col(cs2[0]);const sz=cs.backgroundSize.split(' '),ps=cs.backgroundPosition.split(' ');const dim=(v,full)=>/%/.test(v)?full*px(v)/100:(v==='auto'||!v?full:px(v));const gw=dim(sz[0],r.width),gh=dim(sz[1]||'auto',r.height);const pos=(v,full,g)=>/%/.test(v)?(full-g)*px(v)/100:px(v);const gx=pos(ps[0]||'0',r.width,gw),gy=pos(ps[1]||'0',r.height,gh);
-      if(c)out.push({k:'R',nm:'Sublinhado',x:R(r.left+gx-ctx.ox),y:R(r.top+gy-ctx.oy),w:R(gw),h:Math.max(R(gh),0.5),op:relOp,bg:c})}
-      else{try{const du=rasterGrad(cs.backgroundImage.split(/,\s*(?=(?:repeating-)?linear-gradient)/)[0],r.width,r.height);if(du){const iid=id('i');imgs[iid]=du;out.push({k:'R',nm:'Textura',x:R(r.left-ctx.ox),y:R(r.top-ctx.oy),w:R(r.width),h:R(r.height),op:relOp,rad:bp.rad,img:iid})}}catch(e){}}}}
+    gradOut(el,cs,r,ctx.ox,ctx.oy,relOp,bp,out)}
   inner(el,cs,ctx,out,consumed,relOp,r,vis)}
 function inner(el,cs,ctx,out,consumed,relOp,r,vis=true){
   const tag=el.tagName.toLowerCase();const ox=ctx.ox,oy=ctx.oy;
