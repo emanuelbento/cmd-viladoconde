@@ -120,6 +120,7 @@ function nodeOf(el,ctx,consumed){
   const r=el.getBoundingClientRect();
   if((r.width<=2&&r.height<=2&&/hidden|clip/.test(cs.overflow))||/rect\(0px/.test(cs.clip||'')||/inset\(50%/.test(cs.clipPath||''))return null;
   if(r.right<ctx.clip.l-2||r.left>ctx.clip.r+2||r.bottom<ctx.clip.t-2||r.top>ctx.clip.b+2)return null;
+  if((r.width<0.5||r.height<0.5)&&!hasDirectText(el)&&![...el.querySelectorAll('*')].some(x=>{const q=x.getBoundingClientRect();return q.width>=1&&q.height>=1}))return null;
   const vis=cs.visibility!=='hidden';if(!vis&&![...el.querySelectorAll('*')].some(x=>getComputedStyle(x).visibility==='visible'))return null;const tag=el.tagName.toLowerCase();const ox=ctx.ox,oy=ctx.oy;
   const abs=/absolute|fixed/.test(cs.position);const ownOp=+(+cs.opacity).toFixed(3);
   if(tag==='img'){if(!vis||r.width<1||r.height<1)return null;const iid=id('i');imgs[iid]=el.currentSrc||el.src;const bp=boxProps(el,cs);return{k:'I',nm:cls(el),id:iid,x:R(r.left-ox),y:R(r.top-oy),w:R(r.width),h:R(r.height),op:ownOp,rad:bp.rad,abs}}
