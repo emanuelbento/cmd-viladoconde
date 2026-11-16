@@ -15,7 +15,8 @@ function boxProps(el,cs){
   if(sides.some(s=>s.w>0&&s.c&&s.st!=='none')){const c=sides.find(s=>s.w>0&&s.c).c;o.bd={c,w:sides.map(s=>s.c&&s.st!=='none'?s.w:0)}}
   const rr=['TopLeft','TopRight','BottomRight','BottomLeft'].map(k=>{const v=cs['border'+k+'Radius'];return /%/.test(v)?Math.min(el.offsetWidth,el.offsetHeight)*px(v)/100:px(v)});
   if(rr.some(v=>v>0))o.rad=rr.map(v=>Math.min(v,9999));
-  if(cs.boxShadow&&cs.boxShadow!=='none'){const m=cs.boxShadow.match(/(rgba?\([^)]+\))\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px(?:\s+(-?[\d.]+)px)?(\s+inset)?/);if(m&&!m[6])o.sh=[px(m[2]),px(m[3]),px(m[4]),px(m[5]||0),col(m[1])]}
+  if(cs.boxShadow&&cs.boxShadow!=='none'){const parts=cs.boxShadow.split(/,(?![^(]*\))/);for(const sh of parts){const m=sh.trim().match(/(rgba?\([^)]+\))\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px(?:\s+(-?[\d.]+)px)?(\s+inset)?/);if(!m)continue;const c=col(m[1]);if(!c)continue;const X=px(m[2]),Y=px(m[3]),B=px(m[4]),S=px(m[5]||0);
+    if(m[6]&&!X&&!Y&&!B&&S>0&&!o.bd){o.bd={c,w:[S,S,S,S]}}else if(m[6]){o.ish=[X,Y,B,S,c]}else if(!o.sh){o.sh=[X,Y,B,S,c]}}}
   return o}
 function styleOf(e){const cs=getComputedStyle(e);let fam=cs.fontFamily.split(',')[0].replace(/["']/g,'').trim();
   return{fam,wt:+cs.fontWeight,sz:px(cs.fontSize),c:col(cs.color)||[0,0,0,1],ls:cs.letterSpacing==='normal'?0:px(cs.letterSpacing),tt:cs.textTransform,td:/underline/.test(cs.textDecorationLine)?1:0,it:cs.fontStyle==='italic'?1:0,lh:cs.lineHeight}}
@@ -26,6 +27,7 @@ function gather(el,out,consumed){
     else if(n.nodeType===1){const cs=getComputedStyle(n);if(n.tagName==='BR'){out.push({br:1,el:n});continue}
       if(INLINE.has(cs.display)&&!['IMG','SVG','svg','CANVAS'].includes(n.tagName)&&cs.position!=='absolute'){consumed.add(n);gather(n,out,consumed)}}
   }}
+const CR=new Map();function clipRectOf(el){if(CR.has(el))return CR.get(el);let c={l:-1e9,t:-1e9,r:1e9,b:1e9};for(let e=el;e&&e.nodeType===1&&e.tagName!=='HTML';e=e.parentElement){const cs=getComputedStyle(e);if(/hidden|clip/.test(cs.overflow+cs.overflowX+cs.overflowY)){const r=e.getBoundingClientRect();c={l:Math.max(c.l,r.left-1),t:Math.max(c.t,r.top-1),r:Math.min(c.r,r.right+1),b:Math.min(c.b,r.bottom+1)}}}CR.set(el,c);return c}
 function hasDirectText(el){for(const n of el.childNodes)if(n.nodeType===3&&n.textContent.trim())return true;return false}
 function textNode(el,ox,oy,consumed,relOp){
   const parts=[];gather(el,parts,consumed);
@@ -33,6 +35,7 @@ function textNode(el,ox,oy,consumed,relOp){
   for(const p of parts){if(p.br){chars.push({br:1});continue}
     const st=styleOf(p.el),t=p.tn.textContent;
     for(let i=0;i<t.length;i++){rg.setStart(p.tn,i);rg.setEnd(p.tn,i+1);const rs=rg.getClientRects();if(!rs.length)continue;const r=rs[0];if(r.width<0.01&&/\s/.test(t[i]))continue;
+      const cr=clipRectOf(p.el),mx=r.left+r.width/2,my=r.top+r.height/2;if(mx<cr.l||mx>cr.r||my<cr.t||my>cr.b)continue;
       let c=t[i];if(/\s/.test(c))c=' ';chars.push({c,x:r.left,y:r.top,w:r.width,h:r.height,st})}}
   const real=chars.filter(c=>!c.br);if(!real.length)return null;
   // linhas
@@ -86,6 +89,7 @@ function walk(el,ctx,out,consumed){
   if(ctx.skip&&ctx.skip(el))return;
   const op=ctx.op*(+cs.opacity);if(op<0.02)return;
   const r=el.getBoundingClientRect();
+  if((r.width<=2&&r.height<=2&&/hidden|clip/.test(cs.overflow))||/rect\(0px/.test(cs.clip||'')||/inset\(50%/.test(cs.clipPath||''))return;
   if(r.right<ctx.clip.l-2||r.left>ctx.clip.r+2||r.bottom<ctx.clip.t-2||r.top>ctx.clip.b+2){if(cs.overflow==='visible'&&el.children.length){/* filhos podem sair */}else return}
   const vis=cs.visibility!=='hidden';const relOp=+(op).toFixed(3);
   const tag=el.tagName.toLowerCase();
@@ -119,11 +123,11 @@ function materialize(doc){
     let txt='';const m=c.match(/^"(.*)"$/);if(m)txt=m[1];else if(/counter/.test(c)){const cls=e.className.toString().split(' ')[0];const sib=cls?[...doc.querySelectorAll('.'+cls)]:[e];const n=sib.indexOf(e)+1;txt=/leading-zero/.test(c)?String(n).padStart(2,'0'):String(n)}
     sp.textContent=txt;if(p==='::before'){e.insertBefore(sp,e.firstChild);e.classList.add('__mb')}else{e.appendChild(sp);e.classList.add('__ma')}}})}
 return{
-  svgs:()=>svgs,imgs:()=>imgs,reset(){svgs={};imgs={}},
+  svgs:()=>svgs,imgs:()=>imgs,reset(){svgs={};imgs={};CR.clear()},setFont(f){font=f},
   async loadFont(){if(font)return;let rule;const d=W().document;for(const ss of d.styleSheets){try{for(const r of ss.cssRules){if(r.type===5&&/VF/.test(r.style.fontFamily))rule=r}}catch(e){}}
     const m=rule.style.getPropertyValue('src').match(/base64,([^")]+)/);const bin=Uint8Array.from(atob(m[1]),c=>c.charCodeAt(0));const fk=await import('https://esm.sh/fontkit@2.0.4?bundle');font=fk.create(bin)},
   materialize:()=>materialize(W().document),
-  cap(root,{allowFixed=false,skip=null,originEl=null}={}){const r=(originEl||root).getBoundingClientRect();const out=[];const consumed=new Set();
+  cap(root,{allowFixed=false,skip=null,originEl=null}={}){CR.clear();const r=(originEl||root).getBoundingClientRect();const out=[];const consumed=new Set();
     walk(root,{ox:r.left,oy:r.top,op:1,clip:{l:r.left,r:r.right,t:r.top,b:r.bottom},allowFixed,skip},out,consumed);return out},
   sleep,W
 }})();
