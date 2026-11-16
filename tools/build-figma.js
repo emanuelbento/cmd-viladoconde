@@ -7,7 +7,7 @@ let js='';for(let i=0;i<by.length;){const b=by[i++];if(b<128)js+=String.fromChar
 const D=JSON.parse(js);
 const cols=await figma.variables.getLocalVariableCollectionsAsync();const brandC=cols.find(c=>c.name==='Brand');const brand={};
 for(const vid of brandC.variableIds){const v=await figma.variables.getVariableByIdAsync(vid);const val=v.valuesByMode[brandC.defaultModeId];if(val&&val.r!==undefined)brand[[val.r,val.g,val.b].map(x=>Math.round(x*255)).join(',')]=v}
-const paint=c=>{const p={type:'SOLID',color:{r:c[0]/255,g:c[1]/255,b:c[2]/255},opacity:c[3]??1};const v=brand[c.slice(0,3).join(',')];if(!v)return p;const q=figma.variables.setBoundVariableForPaint(p,'color',v);return {...q,opacity:p.opacity}};
+const paint=c=>{const p={type:'SOLID',color:{r:c[0]/255,g:c[1]/255,b:c[2]/255},opacity:c[3]??1};const v=brand[c.slice(0,3).join(',')];if(!v||p.opacity<0.999)return p;return figma.variables.setBoundVariableForPaint(p,'color',v)};
 const WN={1:'Thin',2:'ExtraLight',3:'Light',4:'Regular',5:'Medium',6:'SemiBold',7:'Bold',8:'ExtraBold',9:'Black'};const done=new Set();
 async function fnt(f,wt,it){const fam=f==='Inter'?'Inter':'Raleway';let st=WN[Math.round(wt/100)]||'Regular';if(fam==='Inter')st=st.replace('SemiBold','Semi Bold').replace('ExtraBold','Extra Bold').replace('ExtraLight','Extra Light');if(it)st=st==='Regular'?'Italic':st+' Italic';const fn={family:fam,style:st};const k=fam+st;if(!done.has(k)){try{await figma.loadFontAsync(fn)}catch(e){fn.style='Regular';await figma.loadFontAsync(fn)}done.add(k)}return fn}
 const IMG=[];
