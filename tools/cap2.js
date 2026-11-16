@@ -120,10 +120,11 @@ function nodeOf(el,ctx,consumed){
   const r=el.getBoundingClientRect();
   if((r.width<=2&&r.height<=2&&/hidden|clip/.test(cs.overflow))||/rect\(0px/.test(cs.clip||'')||/inset\(50%/.test(cs.clipPath||''))return null;
   const hasFixedKid=()=>ctx.allowFixed&&[...el.querySelectorAll('*')].some(x=>getComputedStyle(x).position==='fixed');
-  if((r.right<ctx.clip.l-2||r.left>ctx.clip.r+2||r.bottom<ctx.clip.t-2||r.top>ctx.clip.b+2)&&!hasFixedKid())return null;
+  const inClip=q=>!(q.right<ctx.clip.l-2||q.left>ctx.clip.r+2||q.bottom<ctx.clip.t-2||q.top>ctx.clip.b+2);
+  if(!inClip(r)&&!hasFixedKid()&&![...el.querySelectorAll('*')].some(x=>{const q=x.getBoundingClientRect();return q.width>0&&q.height>0&&inClip(q)}))return null;
   if((r.width<0.5||r.height<0.5)&&!hasDirectText(el)&&![...el.querySelectorAll('*')].some(x=>{const q=x.getBoundingClientRect();return q.width>=1&&q.height>=1&&q.right>ctx.clip.l&&q.left<ctx.clip.r&&q.bottom>ctx.clip.t&&q.top<ctx.clip.b}))return null;
   const vis=cs.visibility!=='hidden';if(!vis&&![...el.querySelectorAll('*')].some(x=>getComputedStyle(x).visibility==='visible'))return null;const tag=el.tagName.toLowerCase();const ox=ctx.ox,oy=ctx.oy;
-  const abs=/absolute|fixed/.test(cs.position);const ownOp=+(+cs.opacity).toFixed(3);
+  const abs=/absolute|fixed/.test(cs.position);const ownOp=+(+cs.opacity).toFixed(3);const zi=parseInt(cs.zIndex);const zk=!abs?1:(isNaN(zi)||zi===0?2:(zi<0?0:3+zi));
   if(tag==='img'){if(!vis||r.width<1||r.height<1)return null;const iid=id('i');imgs[iid]=el.currentSrc||el.src;const bp=boxProps(el,cs);return{k:'I',nm:cls(el),id:iid,x:R(r.left-ox),y:R(r.top-oy),w:R(r.width),h:R(r.height),op:ownOp,rad:bp.rad,abs}}
   if(tag==='svg'){if(!vis)return null;const n=svgNode(el,ox,oy,ownOp);if(n){n.abs=abs;n.nm=cls(el)}return n}
   if(tag==='canvas'){if(!vis||r.width<1)return null;try{const iid=id('i');imgs[iid]=el.toDataURL('image/png');return{k:'I',nm:'canvas',id:iid,x:R(r.left-ox),y:R(r.top-oy),w:R(r.width),h:R(r.height),op:ownOp,abs}}catch(e){return null}}
@@ -145,8 +146,9 @@ function nodeOf(el,ctx,consumed){
   let textPlaced=false;const tnode=txt?textNode2(el,ur.left+iL,ur.top+iT,consumed,1,false):null;
   const flat=e=>{const o=[];for(const n of e.childNodes){if(n.nodeType===1&&getComputedStyle(n).display==='contents')o.push(...flat(n));else o.push(n)}return o};
   for(const n of flat(el)){if(n.nodeType===3&&n.textContent.trim()&&tnode&&!textPlaced){F.ch.push(tnode);textPlaced=true}
-    if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c)F.ch.push(c)}}
+    if(n.nodeType===1&&!consumed.has(n)){const c=nodeOf(n,sub,consumed);if(c){const ccs=getComputedStyle(n);const zi=parseInt(ccs.zIndex);const ab=/absolute|fixed/.test(ccs.position);c.z=!ab?1:(isNaN(zi)||zi===0?2:(zi<0?0:3+zi));F.ch.push(c)}}}
   if(tnode&&!textPlaced)F.ch.push(tnode);
+  F.ch.forEach((c,i)=>{c._i=i});F.ch.sort((a,b)=>((a.z??1)-(b.z??1))||(a._i-b._i));F.ch.forEach(c=>{delete c._i});
   if(saved!==null)el.style.cssText=saved;
   // ordenar por posição de fluxo não muda a ordem DOM; detetar auto layout
   if(!['grid','inline-grid'].includes(cs.display)||true)alDetect(F);
