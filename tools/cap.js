@@ -2,7 +2,8 @@
 window.CAP=(()=>{
 const R=v=>Math.round(v*2)/2,sleep=t=>new Promise(r=>setTimeout(r,t));
 const W=()=>document.getElementById('fr').contentWindow;
-const col=s=>{if(!s)return null;const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return null;const p=m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);const a=p[3]===undefined?1:p[3];return a<0.01?null:[p[0],p[1],p[2],+a.toFixed(3)]};
+const CV=document.createElement('canvas');CV.width=CV.height=1;const CX=CV.getContext('2d',{willReadFrequently:true});const conv=s=>{CX.clearRect(0,0,1,1);CX.fillStyle='#000';CX.fillStyle=s;CX.fillRect(0,0,1,1);const d=CX.getImageData(0,0,1,1).data;return d[3]<3?null:[d[0],d[1],d[2],+(d[3]/255).toFixed(3)]};
+const col=s=>{if(!s||s==='transparent')return null;if(!/^rgba?\(/.test(s.trim()))return conv(s);const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return null;const p=m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);const a=p[3]===undefined?1:p[3];return a<0.01?null:[p[0],p[1],p[2],+a.toFixed(3)]};
 const px=v=>parseFloat(v)||0;
 let svgs={},imgs={},seq=0,font=null;
 const id=p=>p+(++seq);
@@ -41,7 +42,7 @@ function textNode(el,ox,oy,consumed,relOp){
   // linhas
   const lines=[];let cur=null;
   for(const ch of chars){if(ch.br){cur=null;continue}
-    if(!cur||ch.y>cur.y+cur.h*0.5){cur={y:ch.y,h:ch.h,cs:[]};lines.push(cur)}cur.cs.push(ch);cur.h=Math.max(cur.h,ch.h)}
+    if(!cur||ch.y>cur.y+cur.h*0.5){cur={y:ch.y,h:ch.h,cs:[]};lines.push(cur)}else{const pv=cur.cs[cur.cs.length-1];if(pv&&pv.c!==' '&&ch.c!==' '&&ch.x-(pv.x+pv.w)>ch.st.sz*0.22)cur.cs.push({c:' ',x:pv.x+pv.w,y:ch.y,w:ch.x-(pv.x+pv.w),h:ch.h,st:pv.st})}cur.cs.push(ch);cur.h=Math.max(cur.h,ch.h)}
   lines.forEach(l=>{while(l.cs.length&&l.cs[l.cs.length-1].c===' ')l.cs.pop();while(l.cs.length&&l.cs[0].c===' ')l.cs.shift()});
   const L=lines.filter(l=>l.cs.length);if(!L.length)return null;
   const all=L.flatMap(l=>l.cs);const minX=Math.min(...all.map(c=>c.x)),maxX=Math.max(...all.map(c=>c.x+c.w)),minY=Math.min(...all.map(c=>c.y)),maxY=Math.max(...all.map(c=>c.y+c.h));
@@ -77,6 +78,11 @@ function svgNode(el,ox,oy,relOp){
   const cl=el.cloneNode(true);const src=[el,...el.querySelectorAll('*')],dst=[cl,...cl.querySelectorAll('*')];
   src.forEach((s,i)=>{const d=dst[i];const cs=getComputedStyle(s);if(cs.display==='none'){d.setAttribute('display','none');return}
     if(i===0)return;['fill','stroke','stroke-width','stroke-dasharray','stroke-dashoffset','stroke-linecap','stroke-linejoin','opacity','fill-opacity','stroke-opacity'].forEach(p=>{const v=cs.getPropertyValue(p);if(v&&v!=='normal')d.setAttribute(p,v.replace(/px/g,''))});d.removeAttribute('class');d.removeAttribute('style')});
+  src.forEach((s0,i)=>{if(s0.tagName!=='path'||typeof s0.getTotalLength!=='function')return;const cs=getComputedStyle(s0);const da=cs.strokeDasharray;if(!da||da==='none')return;const arr=da.split(/[ ,]+/).map(px).filter(v=>!isNaN(v));const off=px(cs.strokeDashoffset);if(!off||arr.length<2)return;
+    let T;try{T=s0.getTotalLength()}catch(e){return}if(!T)return;const per=arr.reduce((a,b)=>a+b,0);if(arr[0]<T*0.2&&per<T*0.2)return;
+    const segs=[];let pos=-((off%per)+per)%per;let k=0;while(pos<T){const len=arr[k%arr.length];if(k%2===0){const a=Math.max(0,pos),b=Math.min(T,pos+len);if(b>a)segs.push([a,b])}pos+=len;k++;if(k>4000)break}
+    let d='';for(const [a,b] of segs){const n=Math.max(2,Math.ceil((b-a)/3));for(let j=0;j<=n;j++){const pt=s0.getPointAtLength(a+(b-a)*j/n);d+=(j?'L':'M')+R2(pt.x)+' '+R2(pt.y)}}
+    const dd=dst[i];if(!segs.length){dd.setAttribute('display','none');return}dd.setAttribute('d',d);dd.removeAttribute('stroke-dasharray');dd.removeAttribute('stroke-dashoffset')});
   const csr=getComputedStyle(el);cl.setAttribute('xmlns','http://www.w3.org/2000/svg');cl.removeAttribute('class');cl.removeAttribute('style');
   if(!cl.getAttribute('viewBox'))cl.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
   cl.setAttribute('width',R(r.width));cl.setAttribute('height',R(r.height));
